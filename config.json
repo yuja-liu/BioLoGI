@@ -1,0 +1,17 @@
+{
+    "units": {
+        "inputUnits": "M",
+        "outputUnits": "AU"
+    },
+    "tags": {
+        "inputTags": ["Psicose"],
+        "outputTag": "GFP",
+        "experimentTags": ["Exp1", "Exp2"]
+    },
+    "dataPath": "data/BBa_K2791004.tsv",
+    "modelSet": "Activation_System",
+    "methods": {
+        "paraEstimator": "Nelder_Mead",
+        "infoCriteria": "AIC"
+    }
+}
