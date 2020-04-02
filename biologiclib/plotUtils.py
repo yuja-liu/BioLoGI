@@ -24,10 +24,10 @@ def plotModel2D(X, mu, std, theta, model, inputTag = "Inducer", outputTag = "FP"
         raise Exception("Usage: plotModel(X, std, mu, theta, model), where X, std and mu should be iterators")
 
     X1D = [x[0] for x in X]    # Extract the 1st dimension
-    Xmin, Xmax = min(X1D), max(X1D)
-    # 10% extrapolation on both ends
+    # 10% extrapolation on both ends, on a log scale
+    Xmin, Xmax = np.log(min(X1D)), np.log(max(X1D))
     plotBounds = (Xmin - 0.1 * (Xmax - Xmin), Xmax + 0.1 * (Xmax - Xmin))
-    plotRange = np.arange(*plotBounds, 1E-5)
+    plotRange = np.exp(np.arange(*plotBounds, 1E-2))
     Y = model(plotRange, theta)
 
     fig, ax = plt.subplots(figsize=(8, 6))

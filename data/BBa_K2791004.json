@@ -9,7 +9,7 @@
         "experimentTags": ["Exp1", "Exp2"]
     },
     "dataPath": "data/BBa_K2791004.tsv",
-    "modelSet": "Activation_System",
+    "modelSet": "Minimum",
     "methods": {
         "paraEstimator": "Nelder_Mead",
         "infoCriteria": "AIC"
