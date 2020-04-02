@@ -10,7 +10,7 @@ Biologic is a Python package and a command line tool which infers the mechanisti
 The Quick Start uses a [biological part](http://parts.igem.org/wiki/index.php?title=Part:BBa_K2791004) from the 2018 XJTU iGEM project. The part features a D-psicose inducible promoter.
 
 ```sh
-./biologic -c config.json
+./biologic -c data/BBa_K2791004.json
 ```
 
 It is easy to use the command line. It is recommended to store configurations in a file. Though, in the future, configurations may be passed directly to the command line as options.
