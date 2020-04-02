@@ -20,7 +20,7 @@ ModelSpec = Enum('ModelSpec', ('Michaelis_Menten', 'M_M', 'Quadratic', 'Dimerize
     'Inducer', 'Inducer_Michaelis_Menten', 'Inducer_Quadratic', 'Inducer_Activation', 'Inducer_Repression'))
 
 # model set constants
-ModelSet = Enum("ModelSet", ("Simple_Inducible_Promoter", "Inducible_Promoter_with_Inducer", "Activation_System", "Repression_System", "All"))
+ModelSet = Enum("ModelSet", ("Simple_Inducible_Promoter", "Inducible_Promoter_with_Inducer", "Activation_System", "Repression_System", "All", "Minimum"))
 
 # CVSet is the set of all controlled vocabulary
 CVSet = {ModelType, ModelSpec, ModelSet}
@@ -220,19 +220,31 @@ def genModelSet(modelSet):
                     for p in (ModelSpec.Inducer_Michaelis_Menten, ModelSpec.Inducer_Quadratic):
                         for q in (ModelSpec.Inducer_Activation, ModelSpec.Inducer_Repression):
                             models.append((ModelType.Inducible, (i, j, k, ModelSpec.Inducer, p, q)))
+
     elif modelSet == ModelSet.Simple_Inducible_Promoter:
+        # Netative control
+        models.append((ModelType.Constant, ()))
+
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Activation, ModelSpec.Repression):
                 for k in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
                     models.append((ModelType.Inducible, (i, j, k)))
+
     elif modelSet == ModelSet.Inducible_Promoter_with_Inducer:
+        # Netative control
+        models.append((ModelType.Constant, ()))
+
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Activation, ModelSpec.Reperssion):
                 for k in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
                     for p in (ModelSpec.Inducer_Michaelis_Menten, ModelSpec.Inducer_Quadratic):
                         for q in (ModelSpec.Inducer_Activation, ModelSpec.Inducer_Repression):
                             models.append((ModelType.Inducible, (i, j, k, ModelSpec.Inducer, p, q)))
+
     elif modelSet == ModelSet.Activation_System:
+        # Netative control
+        models.append((ModelType.Constant, ()))
+
         # Simple Activation
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
@@ -245,6 +257,9 @@ def genModelSet(modelSet):
                             (ModelSpec.Repression, ModelSpec.Inducer_Repression)):
                         models.append((ModelType.Inducible, (i, j, k, *p, ModelSpec.Inducer)))
     elif modelSet == ModelSet.Repression_System:
+        # Netative control
+        models.append((ModelType.Constant, ()))
+
         # Simple repression
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
@@ -256,4 +271,11 @@ def genModelSet(modelSet):
                     for p in ((ModelSpec.Activation, ModelSpec.Inducer_Repression),
                             (ModelSpec.Repression, ModelSpec.Inducer_Activation)):
                         models.append((ModelType.Inducible, (i, j, k, *p, ModelSpec.Inducer)))
+
+    # A small set for testing
+    elif modelSet == ModelSet.Minimum:
+        models += ((ModelType.Constant, ()),
+                (ModelType.Inducible, (ModelSpec.Quadratic, ModelSpec.Activation, ModelSpec.Basal_expression)),
+                (ModelType.Inducible, (ModelSpec.Quadratic, ModelSpec.Repression, ModelSpec.Basal_expression)))
+
     return models

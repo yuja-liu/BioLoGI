@@ -13,5 +13,6 @@
     "methods": {
         "paraEstimator": "Nelder_Mead",
         "infoCriteria": "AIC"
-    }
+    },
+    "figPath": "data/BBa_K2791004.png"
 }

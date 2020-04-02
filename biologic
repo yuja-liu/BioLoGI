@@ -10,8 +10,7 @@ Xi'an Jiaotong University, Biomedical Informatics & Genomics Center
 main.py is the entrance script. It handles the command line parameters, and returns the best model as well as its parameter(s).
 '''
 
-from lib.ioUtils import readConfig
-from lib.model import selectModel
+from biologiclib import ioUtils, model
 import sys, getopt
 
 helpInfo = '''
@@ -39,13 +38,8 @@ def main():
         print(helpInfo)
         exit()
     else:
-        config = readConfig(configPath)
-        bestModel = selectModel(config, quiet=quiet)
-        print('Choice:\n%s'%bestModel[0])
-        print('Type =', bestModel[1][0].name)
-        print('Specs = ' + ', '.join([spec.name for spec in bestModel[1][1]]))
-        print('Parameters:\n' + ', '.join([key + ' = ' + str(val) for key, val in bestModel[2].items()]))
-        print('IC = %f'%bestModel[3])
+        config = ioUtils.readConfig(configPath)
+        model.selectModel(config, quiet=quiet)
 
 # command line entrance
 if __name__ == "__main__":

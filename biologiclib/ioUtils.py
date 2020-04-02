@@ -69,5 +69,7 @@ def readInput(config):
         raise Exception('The input file requires all numeric values, which is not the case.')
     dataInput, dataOutput, dataStd = tmp[:expectedInputNum], tmp[expectedInputNum:expectedInputNum + expectedExpNum],\
             tmp[expectedInputNum + expectedExpNum:expectedInputNum + 2 * expectedExpNum]
+    # Transpose back the input
+    dataInput = [[row[i] for row in dataInput] for i in range(len(dataInput[0]))]
 
     return {"input": dataInput, "output": dataOutput, "std": dataStd}

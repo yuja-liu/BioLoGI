@@ -12,8 +12,9 @@ import warnings
 import numpy as np
 from enum import Enum
 from scipy.optimize import minimize
-from lib.ioUtils import readConfig, readInput
-from lib.modelBase import ModelType, ModelSpec, ModelSet, genModel, genModelSet, defaultPara
+from functools import reduce
+from biologiclib import ioUtils, modelBase, plotUtils
+from biologiclib.modelBase import ModelType, ModelSpec, ModelSet
 
 # ModelSolver defines the possible procedures to estimate the parameters of a single mechanistic model
 ModelSolver = Enum("ModelSolver", ("Nelder_Mead", "N_M"))
@@ -36,7 +37,7 @@ def genSSE(data, model, thetaList):
         # the total SSE is the sum of the SSE of each experiemnt
         sseTotal = 0
         # the input should be tranpose, to a vertical vector
-        mu = model(np.transpose(np.array(data["input"])), theta)
+        mu = model(np.array(data["input"]), theta)
         for row in data["output"]:
             sse = sum([(m - x) ** 2 for m, x in zip(mu, row)])
             sseTotal += sse
@@ -63,18 +64,18 @@ def infoCriteria(sse, theta, data, method = ModelCriterion.AIC):
         k, n = len(theta), len(data[0]) * len(data)
         AIC = 2 * k + n * np.log(sse / n)
         # AIC correction when small sample size
-        AICc = AIC + 2 * k * (k + 1) / (n - k - 1)
-        return AICc
+        #AICc = AIC + 2 * k * (k + 1) / (n - k - 1)
+        return AIC
     else:
         return sse
 
 def selectModel(config, quiet=False):
     # If the ontology of codes are well-defined, then the higher the logic, the less comments will be required
-    data = readInput(config)
-    modelSet = genModelSet(ModelSet[config["modelSet"]])
-    minIC, bestModel = float('inf'), None
+    data = ioUtils.readInput(config)
+    modelSet = modelBase.genModelSet(ModelSet[config["modelSet"]])
+    minIC, bestModel, bestModelMeta = float('inf'), None, None
     for (i, modelKey) in enumerate(modelSet):
-        exp, model, thetaList = genModel(*modelKey)
+        exp, model, thetaList = modelBase.genModel(*modelKey)
 
         if not quiet:
             print('#%d model calculating...'%(i+1))
@@ -82,7 +83,7 @@ def selectModel(config, quiet=False):
             print('Specs = ' + ', '.join([spec.name for spec in modelKey[1]]))
 
         sse = genSSE(data, model, thetaList)
-        inferredTheta, residue = paraEstimator(sse, defaultPara(thetaList),
+        inferredTheta, residue = paraEstimator(sse, modelBase.defaultPara(thetaList),
                 ModelSolver[config["methods"]["paraEstimator"]])
         inferredThetaDict = {key: val for key, val in zip(thetaList, inferredTheta)}
         IC = infoCriteria(residue, inferredTheta, data["output"],
@@ -96,6 +97,31 @@ def selectModel(config, quiet=False):
 
         if IC < minIC:
             minIC = IC
-            bestModel = (exp, modelKey, inferredThetaDict, IC)
+            bestModel = model
+            bestModelMeta = (exp, modelKey, inferredThetaDict, residue, IC)
 
-    return bestModel
+    # Print model selection
+    print('Model Choice:')
+    print('%s\nType = %s'%(bestModelMeta[0], bestModelMeta[1][0].name))
+    print('Specs = ' + ', '.join([spec.name for spec in bestModelMeta[1][1]]))
+    print('Parameters:\n' +\
+            ', '.join([key + ' = ' + str(val) for key, val in bestModelMeta[2].items()]))
+    print('Residue = %.4f\nIC = %.4f'%bestModelMeta[3:])
+
+    # Plotting
+    figPath = config["figPath"] if "figPath" in config.keys() else None
+    # Handling input: expand and transpose
+    # TODO: these codes are arwful, try to rebuild
+    X = []
+    for i in range(len(data["output"])):
+        X += data["input"]
+    plotUtils.plotModel2D(X,
+            reduce(lambda x, y: x + y, data["output"]),
+            reduce(lambda x, y: x + y, data["std"]),
+            bestModelMeta[2],
+            bestModel,
+            config["tags"]["inputTags"][0], config["tags"]["outputTag"],
+            config["units"]["inputUnits"], config["units"]["outputUnits"],
+            figPath)
+
+    return bestModelMeta

@@ -1,6 +1,6 @@
 # BioLogic
 
-![Biologic LOGO](src/logo.png)
+![Biologic LOGO](img/logo.png)
 
 Biologic is a Python package and a command line tool which infers the mechanistic model of a single biological node. Given characterization data, e.g., from a microplate reader, Biologic can automatically estimate model parameters and select the optimal model, based on mechanistic hypotheses.
 "Biological nodes" are commonly regarded as *logic gates* in synthetic biology, but *biological nodes* is a more generalized term, since the nodes may have more than 2 inputs and may behave far from discretely.
@@ -32,7 +32,8 @@ The config file should have the fields as followed:
     "methods": {
         "paraEstimator": "Nelder_Mead",
         "infoCriteria": "AIC"
-    }
+    },
+    "figPath": "data/BBa_K2791004.png"
 }
 ```
 
@@ -73,18 +74,44 @@ beta = 0.02170608718198557, b = 0.22919855389527066, K = 3.3504046038232686e-09,
 Residue = 0.8132
 IC = -26.3361
 =============================================
-Choice:
- 2          2
-A *alpha + K *b
----------------
-      / 2    2\
- beta*\A  + K /
+#31 model calculating...
+           n
+          K *b
+------------------------
+     /                n\
+     |     /       2 \ |
+     | n   |  A*K_I  | |
+beta*|K  + |---------| |
+     |     | 2      2| |
+     \     \I  + K_I / /
 Type = Inducible
-Specs = Quadratic, Basal_expression, Activation
+Specs = Hill, No_basal_expression, Inducer_Quadratic, Repression, Inducer_Repression, Inducer
 Parameters:
-alpha = 2.173222877354994, beta = 0.6233347166737514, b = 0.8823534145312986, K = 0.018853500592474218
-IC = -38.206461
+beta = 0.03161993553042397, b = 0.3953910996073251, K = 4.318742065184359e-07, n = 0.6554594267367695, A = 0.0010628187831676099, K_I = 0.00012505477781205108
+Residue = 0.5264
+IC = -9.7695
+=============================================
+Model Choice:
+                      n
+ n           /  A*I  \
+K *b + alpha*|-------|
+             \I + K_I/
+-----------------------
+      /              n\
+      | n   /  A*I  \ |
+ beta*|K  + |-------| |
+      \     \I + K_I/ /
+Type = Inducible
+Specs = Hill, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 2.2075008428793392, beta = 0.03411241178321088, b = 0.0015438590237552732, K = 0.0013900301015426293, n = 2.434265912707475, A = 0.0007830050667632467, K_I = 0.0024753174437969847
+Residue = 0.3143
+IC = -11.8944
 ```
+
+Accroding to the settings in configuration file, there will also be a figure plotting the best figure:
+
+![BBa\_K2791004 best model](data/BBa_K2791004.png)
 
 ## Liscense
 
