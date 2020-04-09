@@ -19,18 +19,6 @@ def readConfig(filePath):
         configFile.close()
     except Error:
         raise Exception("Error while parsing json file. Please check the grammar.")
-    # Check required fields
-    for key in ["units", "tags", "dataPath", "methods"]:
-        if key not in config.keys():
-            raise Exception('The fields "units", "tags", "methods", and "dataPath" are required in config file')
-    if not("inputUnits" in config["units"].keys() and "outputUnits" in config["units"].keys()):
-        raise Exception('The fields "inputUnits" and "outputUnits" are required in "units" section.')
-    if not("inputTags" in config["tags"].keys() and "outputTag" in config["tags"].keys()\
-            and "experimentTags" in config["tags"].keys()):
-        raise Exception('The fields "inputTags", "outputTag" and "experimentTags" are required in "tags" section.')
-    if type(config["tags"]["inputTags"]) != list or type(config["tags"]["outputTag"]) != str\
-            or type(config["tags"]["experimentTags"]) != list:
-        raise Exception('The field "inputTags" or "experimentTags" requires a list, while the field "outputTag" require a string.')
     
     return config
 

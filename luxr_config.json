@@ -1,0 +1,18 @@
+{
+    "input": {
+        "inducerUnits": "M",
+        "reporterUnits": "AU",
+        "inducerTags": ["3OC6HSL"],
+        "replicateTags": ["Exp1"],
+        "reporterTag": "GFP",
+        "file": "data/input_luxr.tsv"
+    },
+    "solver": {
+        "paraEstimator": "Nelder_Mead",
+        "infoCriteria": "AIC",
+        "modelSet": "Activation_System"
+    },
+    "output": {
+        "figureFile": "data/luxr.png"
+    }
+}
