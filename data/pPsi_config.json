@@ -2,17 +2,17 @@
     "input": {
         "inducerUnits": "M",
         "reporterUnits": "AU",
-        "inducerTags": ["3OC6HSL"],
-        "replicateTags": ["Exp1"],
+        "inducerTags": ["Psicose"],
+        "replicateTags": ["400 min", "410 min", "420 min", "430 min", "440 min"],
         "reporterTag": "GFP",
-        "file": "data/input_luxr.tsv"
+        "file": "data/pPsi.tsv"
     },
     "solver": {
-        "paraEstimator": "Nelder_Mead",
+        "paraEstimator": "SLSQP",
         "infoCriteria": "AIC",
         "modelSet": "Activation_System"
     },
     "output": {
-        "figureFile": "data/luxr.png"
+        "figureFile": "data/pPsi.png"
     }
 }

@@ -1,0 +1,18 @@
+{
+    "input": {
+        "inducerUnits": "%",
+        "reporterUnits": "AU",
+        "inducerTags": ["Arabinose"],
+        "replicateTags": ["400 min", "410 min", "420 min", "430 min", "440 min"],
+        "reporterTag": "RFP",
+        "file": "data/pBAD_rbspBb.tsv"
+    },
+    "solver": {
+        "paraEstimator": "SLSQP",
+        "infoCriteria": "AIC",
+        "modelSet": "Activation_System"
+    },
+    "output": {
+        "figureFile": "data/pBAD_rbspBb.png"
+    }
+}

@@ -25,9 +25,24 @@ def plotModel2D(X, mu, std, theta, model, inputTag = "Inducer", outputTag = "FP"
 
     X1D = [x[0] for x in X]    # Extract the 1st dimension
     # 10% extrapolation on both ends, on a log scale
-    Xmin, Xmax = np.log(min(X1D)), np.log(max(X1D))
-    plotBounds = (Xmin - 0.1 * (Xmax - Xmin), Xmax + 0.1 * (Xmax - Xmin))
-    plotRange = np.exp(np.arange(*plotBounds, 1E-2))
+    # Handling 0 input
+    lower = min(X1D)
+    if lower < 1E-12:    # consider as read zero
+        Xsorted = sorted(X1D)
+        for x in Xsorted:
+            if x >= 1E-12:
+                Xmin = np.log(x)
+                break
+    else:
+        Xmin = np.log(lower)
+    Xmax = np.log(max(X1D))
+    try:
+        plotBounds = (Xmin - 0.2 * (Xmax - Xmin), Xmax + 0.2 * (Xmax - Xmin))
+    except NameError:    # Xmin does not exist, which is caused by all-zero inducer
+        raise Exception("All-zero inducer input is not accepted")
+    plotRange = np.exp(np.arange(*plotBounds, 1E-1))
+    if lower < 1E-12:    # give back the 0 at front
+        plotRange = np.insert(plotRange, 0, 0.0)
     Y = model(plotRange, theta)
 
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -36,7 +51,7 @@ def plotModel2D(X, mu, std, theta, model, inputTag = "Inducer", outputTag = "FP"
     ax.errorbar(X1D, mu, yerr=std, fmt='o', color="blue")
     ax.set_xlabel("[%s]/%s"%(inputTag, inputUnits))
     ax.set_ylabel("[%s]/%s"%(outputTag, outputUnits))
-    ax.set_xscale("log")
+    ax.set_xscale("symlog", linthreshx = np.exp(plotBounds[0]))
     if save_fig is not None:
         # Then save as a file
         plt.savefig(save_fig, dpi=300, format="png")

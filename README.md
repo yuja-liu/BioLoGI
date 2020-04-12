@@ -18,22 +18,22 @@ The config file should have the fields as followed:
 
 ```json
 {
-    "units": {
-        "inputUnits": "M",
-        "outputUnits": "AU"
+    "input": {
+        "inducerUnits": "M",
+        "reporterUnits": "AU",
+        "inducerTags": ["Psicose"],
+        "replicateTags": ["400 min", "410 min", "420 min", "430 min", "440 min"],
+        "reporterTag": "GFP",
+        "file": "data/pPsi.tsv"
     },
-    "tags": {
-        "inputTags": ["Psicose"],
-        "outputTag": "GFP",
-        "experimentTags": ["Exp1", "Exp2"]
+    "solver": {
+        "paraEstimator": "SLSQP",
+        "infoCriteria": "AIC",
+        "modelSet": "Activation_System"
     },
-    "dataPath": "data/BBa_K2791004.json",
-    "modelSet": "Activation_System",
-    "methods": {
-        "paraEstimator": "Nelder_Mead",
-        "infoCriteria": "AIC"
-    },
-    "figPath": "data/BBa_K2791004.png"
+    "output": {
+        "figureFile": "data/pPsi.png"
+    }
 }
 ```
 
@@ -111,7 +111,7 @@ IC = -11.8944
 
 Accroding to the settings in configuration file, there will also be a figure plotting the best figure:
 
-![BBa\_K2791004 best model](data/BBa_K2791004.png)
+![BBa\_K2791004 best model](data/pPsi.png)
 
 ## Liscense
 

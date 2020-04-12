@@ -1,4 +1,4 @@
-#!/home/randolph/miniconda3/bin/python
+#!/bin/bash/python
 
 # -*- coding: utf-8 -*- 
 
@@ -10,16 +10,38 @@ Xi'an Jiaotong University, Biomedical Informatics & Genomics Center
 main.py is the entrance script. It handles the command line parameters, and returns the best model as well as its parameter(s).
 '''
 
-from biologiclib import ioUtils, model
+from biologiclib import ioUtils, inference
+from biologiclib.modelBase import ModelSet
+from biologiclib.inference import ModelSolver, ModelCriterion
 import sys, getopt
 
 helpInfo = '''
-BioLogic, a command line tool to infer the optimal model and parameters for a biological node, given empirical data
+BioLogic
 
-Usage: biologic [options] ... [-c configFile ] [arguments] ...
--c configFile   : provide a file of necessary information.
--h              : show this message
--q              : quiet mode
+A command line tool to infer the optimal model, parameters, and mechanistic hypotheses for a biological *node*, given characterization data.
+
+Nomenclatures: "Reporter" refers to the output of a circuit, e.g., a fluorescense protein or a gene whose expression being regulated.
+"Inducer" is the term for input signal, which is often a small molecule, but can also be transcription factors.
+Take a Lac operon for an example. The "inducer" can be IPTG or LacI, depends on the hypotheses, while "reporter" can be *lacZYA*, or GFP, if we have a recombinated strain here.
+
+Usage:
+
+  biologic
+
+    -c, --config <file> : provide a file of necessary information.
+    -h                  : show this message
+    -q                  : quiet mode
+    -u, --units <units> : Specify the units for both the inducer and the receiver
+    --inducer-units     : Assign the units of the inducer
+    --reporter-units    : Assign the units of the reporter
+    --inducer-tags      : Labels for the inducers. Multiple values separated by commas are encouraged, e.g., "LacI, IPTG"
+    --replicate-tags    : Names for each experiment
+    --reporter-tag      : The label for the reporter, e.g., GFP
+    --figure            : Designate the output path for the figure
+    -f, --file          : Designate the path for characterization data
+    -c, --config        : Use a configuration file to specify details of the model, and/or the solver
+    -q, --quiet         : Not showing alternetive models. Verbose is default.
+    -h, --help          : Show this text
 '''
 
 def main():
@@ -39,7 +61,22 @@ def main():
         exit()
     else:
         config = ioUtils.readConfig(configPath)
-        model.selectModel(config, quiet=quiet)
+        # Parse the config
+        # TODO: ValueError
+        inducerUnits = config['input']['inducerUnits']
+        reporterUnits = config['input']['reporterUnits']
+        inducerTags = config['input']['inducerTags']
+        replicateTags = config['input']['replicateTags']
+        reporterTag = config['input']['reporterTag']
+        filePath = config['input']['file']
+        modelSolver = ModelSolver[config['solver']['paraEstimator']]
+        modelCriterion = ModelCriterion[config['solver']['infoCriteria']]
+        modelSet = ModelSet[config['solver']['modelSet']]
+        figurePath = config['output']['figureFile']
+        inference.selectModel(filePath, inducerTags, replicateTags, reporterTag,
+                modelSolver, modelSet, modelCriterion,
+                inducerUnits, reporterUnits, figurePath,
+                quiet = False)
 
 # command line entrance
 if __name__ == "__main__":
