@@ -1,0 +1,22 @@
+{
+    "input": {
+        "inducerUnits": "M",
+        "reporterUnits": "AU",
+        "inducerTags": ["3OC6HSL"],
+        "replicateTags": ["0min1", "0min2", "0min3",
+            "2min1", "2min2", "2min3",
+            "4min1", "4min2", "4min3",
+            "6min1", "6min2", "6min3",
+            "8min1", "8min2", "8min3"],
+        "reporterTag": "GFP",
+        "file": "data/BBa_T9002.tsv"
+    },
+    "solver": {
+        "paraEstimator": "SLSQP",
+        "infoCriteria": "AIC",
+        "modelSet": "Activation_System"
+    },
+    "output": {
+        "figureFile": "data/BBa_T9002.png"
+    }
+}

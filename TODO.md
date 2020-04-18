@@ -13,5 +13,6 @@
 ~~11. Find more information about how to compute "relative activity" in SI~~
 ~~12. Implement the method on real data~~
 ~~13. Implement customized codes to run BMSS data~~
-14. Calculate the Hill coefficient for 3OC6HSL-LuxR
-15. Implement gradient-based optimization methods
+~~14. Calculate the Hill coefficient for 3OC6HSL-LuxR~~
+~~15. Implement gradient-based optimization methods~~
+16. Finish translation

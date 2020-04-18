@@ -206,7 +206,7 @@ def selectModel(filePath, inducerTags, replicateTags, reporterTag,
 
 def printModel(modelType, modelSpecs, expression, thetaList, theta, residue, IC):
     print('=============================================')
-    print('%s\nType = %s'%(expression, modelType))
+    print('%s\nType = %s'%(expression, modelType.name))
     print('Specs = ' + ', '.join([spec.name for spec in modelSpecs]))
     print('Parameters:\n' +\
             ', '.join([key + ' = ' + str(val) for key, val in zip(thetaList, theta)]))

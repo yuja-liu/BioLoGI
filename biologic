@@ -62,17 +62,22 @@ def main():
     else:
         config = ioUtils.readConfig(configPath)
         # Parse the config
-        # TODO: ValueError
-        inducerUnits = config['input']['inducerUnits']
-        reporterUnits = config['input']['reporterUnits']
-        inducerTags = config['input']['inducerTags']
-        replicateTags = config['input']['replicateTags']
-        reporterTag = config['input']['reporterTag']
-        filePath = config['input']['file']
-        modelSolver = ModelSolver[config['solver']['paraEstimator']]
-        modelCriterion = ModelCriterion[config['solver']['infoCriteria']]
-        modelSet = ModelSet[config['solver']['modelSet']]
-        figurePath = config['output']['figureFile']
+        if "input" not in config.keys():
+            raise Exception("[Tentative] the input field is required in configuration")
+        inducerUnits = config.get('input', {}).get('inducerUnits', None)
+        reporterUnits = config.get('input', {}).get('reporterUnits', None)
+        inducerTags = config.get('input', {}).get('inducerTags', None)
+        replicateTags = config.get('input', {}).get('replicateTags', None)
+        reporterTag = config.get('input', {}).get('reporterTag', None)
+        filePath = config.get('input', {}).get('file', None)
+        modelSolver = ModelSolver[
+                config.get('solver', {}).get('paraEstimator', None)]
+        modelCriterion = ModelCriterion[
+                config.get('solver', {}).get('infoCriteria', None)]
+        modelSet = ModelSet[
+                config.get('solver', {}).get('modelSet', None)]
+        figurePath = config.get('output', {}).get('figureFile', None)
+
         inference.selectModel(filePath, inducerTags, replicateTags, reporterTag,
                 modelSolver, modelSet, modelCriterion,
                 inducerUnits, reporterUnits, figurePath,

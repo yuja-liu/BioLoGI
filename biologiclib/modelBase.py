@@ -17,7 +17,7 @@ import numpy as np
 ModelType = Enum('ModelType', ('Constant', 'Inducible', 'Duo_Input_Node', 'Single_Input_Node'))
 
 # ModelSpec includes model specifications, the combinations of which builds the model
-ModelSpec = Enum('ModelSpec', ('Michaelis_Menten', 'M_M', 'Quadratic', 'Dimerized', 'Hill', 'Activation', 'Repression', 'Basal_expression', 'No_basal_expression',
+ModelSpec = Enum('ModelSpec', ('Linear', 'Michaelis_Menten', 'M_M', 'Quadratic', 'Dimerized', 'Hill', 'Activation', 'Repression', 'Basal_expression', 'No_basal_expression',
     'Inducer', 'Inducer_Michaelis_Menten', 'Inducer_Quadratic', 'Inducer_Activation', 'Inducer_Repression'))
 
 # model set constants
@@ -57,7 +57,9 @@ def genModel(modelType, modelSpecs = (), plain_print=True) :
     if type(modelType) != ModelType :
         raise Exception('Usage: genModel(modelType, modelSpecs), modelType should be a ModelType Enum')
 
+    ########################################
     # modelType = Constant(constitutive expression)
+    ########################################
     if modelType == ModelType.Constant :
         if len(modelSpecs) != 0:
             raise Exception('Usage: genModel(modelType, modelSpecs), where if modelType is "Constant", no modelSpecs should be specified')
@@ -65,9 +67,8 @@ def genModel(modelType, modelSpecs = (), plain_print=True) :
         Pst = alpha    # Pst is the steady-state [P]
 
     ########################################
-    # ModelType specific ajustments
-    ########################################
     # modelType = Inducible(single-input node, i.e. inducible promoter system)
+    ########################################
     if modelType == ModelType.Inducible or modelType == ModelType.Single_Input_Node:
         # Some modelSpecs cannot co-exist
         # "Activation" cannot co-exist w/ "Repression"
@@ -90,9 +91,12 @@ def genModel(modelType, modelSpecs = (), plain_print=True) :
             if keyword in modelSpecs and ModelSpec.Inducer not in modelSpecs:
                 raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "%s" depends on keyword "Inducer"'%keyword.name)
 
-        # The general model
+        ########################################
+        # Hill Function
+        ########################################
         # A, activator or repressor; alpha, expression(txn + tln) rate; beta, degradation rate, now obsolete; b, leaky expression rate; K, dissociation constant; n, Hill coefficient
         A, alpha, b, K, n = symbols('A alpha b K n')
+
         Pst = (alpha * A**n + b * K**n) / (A**n + K**n)
         if ModelSpec.Michaelis_Menten in modelSpecs or ModelSpec.M_M in modelSpecs:
             Pst = Pst.subs(n, 1)
@@ -105,6 +109,16 @@ def genModel(modelType, modelSpecs = (), plain_print=True) :
                 Pst = Pst.subs(alpha, 0)
             else:
                 Pst = Pst.subs(b, 0)
+
+        ########################################
+        # Negative control: linear model
+        ########################################
+        if ModelSpec.Linear in modelSpecs:
+            Pst = alpha * A + b
+
+        ########################################
+        # "Secondary inducer"
+        ########################################
         if ModelSpec.Inducer in modelSpecs:
             n_I, K_I, a_I, b_I = symbols('n_I K_I a_I b_I')
             # General model for inducer binding
@@ -183,6 +197,8 @@ def __modelParaInterpreter(modelType, modelSpecs, modelExp) :
 
     # modelType = Inducible
     elif modelType == ModelType.Inducible or modelType == ModelType.Single_Input_Node:
+        if ModelSpec.Linear in modelSpecs:
+            thetaList = ["alpha", "b"]
         # Generate the required theta list
         thetaList = ['alpha', 'b', 'K', 'n']
         for key in (ModelSpec.Michaelis_Menten, ModelSpec.M_M, ModelSpec.Quadratic, ModelSpec.Dimerized):
@@ -287,6 +303,7 @@ def genModelSet(modelSet):
     if modelSet == ModelSet.All:
         # List all feasible models, a total of 61
         models.append((ModelType.Constant, ()))
+        models.append((ModelType.Inducible, (ModelSpec.Linear)))
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Activation, ModelSpec.Repression):
                 for k in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
@@ -298,6 +315,7 @@ def genModelSet(modelSet):
     elif modelSet == ModelSet.Simple_Inducible_Promoter:
         # Netative control
         models.append((ModelType.Constant, ()))
+        models.append((ModelType.Inducible, (ModelSpec.Linear)))
 
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Activation, ModelSpec.Repression):
@@ -307,6 +325,7 @@ def genModelSet(modelSet):
     elif modelSet == ModelSet.Inducible_Promoter_with_Inducer:
         # Netative control
         models.append((ModelType.Constant, ()))
+        models.append((ModelType.Inducible, (ModelSpec.Linear)))
 
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Activation, ModelSpec.Reperssion):
@@ -318,7 +337,7 @@ def genModelSet(modelSet):
     elif modelSet == ModelSet.Activation_System:
         # Netative control
         models.append((ModelType.Constant, ()))
-
+        models.append((ModelType.Inducible, (ModelSpec.Linear)))
         # Simple Activation
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
@@ -333,7 +352,7 @@ def genModelSet(modelSet):
     elif modelSet == ModelSet.Repression_System:
         # Netative control
         models.append((ModelType.Constant, ()))
-
+        models.append((ModelType.Inducible, (ModelSpec.Linear)))
         # Simple repression
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
@@ -348,8 +367,9 @@ def genModelSet(modelSet):
 
     # A small set for testing
     elif modelSet == ModelSet.Minimum:
-        models += ((ModelType.Constant, ()),
+        models += [(ModelType.Constant, ()),
+                (ModelType.Inducible, (ModelSpec.Linear,)),
                 (ModelType.Inducible, (ModelSpec.Quadratic, ModelSpec.Activation, ModelSpec.Basal_expression)),
-                (ModelType.Inducible, (ModelSpec.Quadratic, ModelSpec.Repression, ModelSpec.Basal_expression)))
+                (ModelType.Inducible, (ModelSpec.Quadratic, ModelSpec.Repression, ModelSpec.Basal_expression))]
 
     return models

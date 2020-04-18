@@ -1,0 +1,491 @@
+[?25h[?1049h[22;0;0t[>4;2m[?1h=[?2004h[1;51r[?12h[?12l[22;2t[22;1t[27m[23m[29m[m[H[2J[?25l[51;1H[97m[41mE325: ATTENTION[m
+Found a swap file by the name "biologiclib/.inference.py.swp"
+[10Cowned by: randolph   dated: Sat Apr 18 00:21:22 2020
+[9Cfile name: ~randolph/YABMSS/biologic/biologiclib/inference.py
+[10Cmodified: no
+[9Cuser name: randolph   host name: pc-randolphliu-com
+[8Cprocess ID: 8676 (STILL RUNNING)
+While opening file "biologiclib/inference.py"
+[13Cdated: Sat Apr 18 00:20:27 2020
+
+(1) Another program may be editing the same file.  If this is the case,
+    be careful not to end up with two different instances of the same
+    file when making changes.  Quit, or continue with caution.
+(2) An edit session for this file crashed.
+    If this is the case, use ":recover" or "vim -r biologiclib/inference.py"
+    to recover the changes (see ":help recovery").
+    If you did this already, delete the swap file "biologiclib/.inference.py.swp"
+    to avoid this message.
+
+[32mSwap file "biologiclib/.inference.py.swp" already exists![m
+[32m[O]pen Read-Only, (E)dit anyway, (R)ecover, (Q)uit, (A)bort: [?25h[m[?2004l[?1l>[>4;m[?1049l[23;0;0tVim: Caught deadly signal HUP
+Vim: Finished.
+[51;1Hnducible
+Specs = Quadratic, No_basal_expression, Activation
+Parameters:
+alpha = 4.288409685765046, K = 4.9635201776267645e-09
+Residue = 10.9345
+IC = -283.4681
+Time elapsed:0.33
+
+#6 model calculating...
+=============================================
+ n          n  
+A *alpha + K *b
+---------------
+     n    n    
+    A  + K     
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 4.295958333688269, b = -0.07268927526302929, K = 4.697753565994889e-09, n = 1.8195084309928657
+Residue = 11.2887
+IC = -275.6431
+Time elapsed:2.22
+
+#7 model calculating...
+=============================================
+ n      
+A *alpha
+--------
+ n    n 
+A  + K  
+Type = Inducible
+Specs = Hill, No_basal_expression, Activation
+Parameters:
+alpha = 4.281534086207998, K = 5.644317191434652e-09, n = 2.5433547726517602
+Residue = 10.7239
+IC = -283.8019
+Time elapsed:1.05
+
+#8 model calculating...
+=============================================
+A*alpha      
+------- + K*b
+A + K_I      
+-------------
+    A        
+ ------- + K 
+ A + K_I     
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 7.533018086406649, b = 2.589141040165885, K = 58492.154682862914, K_I = 0.7855875124633718
+Residue = 486.5727
+IC = 175.9873
+Time elapsed:2.72
+
+#9 model calculating...
+=============================================
+      K_I*alpha
+K*b + ---------
+       A + K_I 
+---------------
+        K_I    
+  K + -------  
+      A + K_I  
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 2.1516631532249026, b = 2.1433822931966127, K = -0.9431763045520614, K_I = 0.0017799418996136249
+Residue = 435.4201
+IC = 162.6584
+Time elapsed:3.54
+
+#10 model calculating...
+=============================================
+  2            
+ A *alpha      
+--------- + K*b
+ 2      2      
+A  + K_I       
+---------------
+      2        
+     A         
+ --------- + K 
+  2      2     
+ A  + K_I      
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Quadratic, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 6.893898499703936, b = 2.5891410416666667, K = 9773.224072168394, K_I = 224.9776890791521
+Residue = 486.5727
+IC = 175.9873
+Time elapsed:3.16
+
+#11 model calculating...
+=============================================
+         2      
+      K_I *alpha
+K*b + ----------
+       2      2 
+      A  + K_I  
+----------------
+           2    
+        K_I     
+ K + ---------  
+      2      2  
+     A  + K_I   
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Quadratic, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 2.589166004293495, b = 2.589166004293495, K = -14.145714331774753, K_I = 0.16793122412378886
+Residue = 486.5727
+IC = 175.9873
+Time elapsed:3.61
+
+#12 model calculating...
+=============================================
+        A*alpha        
+-----------------------
+          /   A       \
+(A + K_I)*|------- + K|
+          \A + K_I    /
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 24.185622623792646, K = 3.541096986605801, K_I = 2.358248649106091e-06
+Residue = 512.7786
+IC = 180.2823
+Time elapsed:1.22
+
+#13 model calculating...
+=============================================
+    K*b    
+-----------
+      K_I  
+K + -------
+    A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 6.538331618156734, K = 1.0215717019786319e-07, K_I = 1.0223608097312687e-12
+Residue = 704.0804
+IC = 218.3281
+Time elapsed:1.16
+
+#14 model calculating...
+=============================================
+           2               
+          A *alpha         
+---------------------------
+            /     2       \
+/ 2      2\ |    A        |
+\A  + K_I /*|--------- + K|
+            | 2      2    |
+            \A  + K_I     /
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Quadratic, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 4.288391608901386, K = -1198.863846935937, K_I = 1.7777926728264655
+Residue = 1291.0108
+IC = 291.0827
+Time elapsed:1.24
+
+#15 model calculating...
+=============================================
+     K*b     
+-------------
+          2  
+       K_I   
+K + ---------
+     2      2
+    A  + K_I 
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Quadratic, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 6.054913975520606, K = 9.401109779578985e-08, K_I = 2.707898323088592e-12
+Residue = 197.0266
+IC = 65.5017
+Time elapsed:1.45
+
+#16 model calculating...
+=============================================
+  2              
+ A *alpha     2  
+---------- + K *b
+         2       
+(A + K_I)        
+-----------------
+      2          
+     A         2 
+ ---------- + K  
+          2      
+ (A + K_I)       
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 6.861617231808404, b = 2.5891410413249, K = 201.6286269761516, K_I = 0.019659820216602036
+Residue = 486.5727
+IC = 175.9873
+Time elapsed:3.05
+
+#17 model calculating...
+=============================================
+          2      
+ 2     K_I *alpha
+K *b + ----------
+                2
+       (A + K_I) 
+-----------------
+            2    
+  2      K_I     
+ K  + ---------- 
+               2 
+      (A + K_I)  
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 2.5799901699103973, b = 2.579990169910398, K = -5.046196502307463e-06, K_I = 0.0010986832911072018
+Residue = 486.5827
+IC = 175.9898
+Time elapsed:1.92
+
+#18 model calculating...
+=============================================
+   4               
+  A *alpha      2  
+------------ + K *b
+           2       
+/ 2      2\        
+\A  + K_I /        
+-------------------
+       4           
+      A          2 
+ ------------ + K  
+            2      
+ / 2      2\       
+ \A  + K_I /       
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Quadratic, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 6.488220977214597, b = 2.5891410435267117, K = -28976.811862790306, K_I = 1.734723475976807e-18
+Residue = 486.5727
+IC = 175.9873
+Time elapsed:3.66
+
+#19 model calculating...
+=============================================
+           4       
+ 2      K_I *alpha 
+K *b + ------------
+                  2
+       / 2      2\ 
+       \A  + K_I / 
+-------------------
+             4     
+  2       K_I      
+ K  + ------------ 
+                 2 
+      / 2      2\  
+      \A  + K_I /  
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Quadratic, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 2.5801126[?1049h[22;0;0t[>4;2m[?1h=[?2004h[?12h[?12l[27m[23m[29m[m[H[2J[?25l[1;1H[38;5;130m209 [m    [36mprint[m([31m'%s[m[35m\n[m[31mType = %s'[m%(expression,,[2;1H[38;5;130m    [m modelType.name))
+[38;5;130m210 [m    [36mprint[m([31m'Specs = '[m + [31m', '[m.join([specc[4;1H[38;5;130m    [m.name [38;5;130mfor[m spec [38;5;130min[m modelSpecs]))
+[38;5;130m211 [m    [36mprint[m([31m'Parameters:[m[35m\n[m[31m'[m +[35m\[m
+[38;5;130m212 [m[12C[31m', '[m.join([key + [31m' = '[m + [36mss[m[7;1H[38;5;130m    [m[36mtr[m(val) [38;5;130mfor[m key, val [38;5;130min[m [36mzip[m(thetaList,,[8;1H[38;5;130m    [m theta)]))
+[38;5;130m213 [m    [36mprint[m([31m'Residue = %.4f[m[35m\n[m[31mIC = %.4f'[m%%[10;1H[38;5;130m    [m(residue, IC))
+[38;5;130m214 [m    stdout.flush()
+[94m~                                         [13;1H~                                         [14;1H~                                         [15;1H~                                         [16;1H~                                         [17;1H~                                         [18;1H~                                         [19;1H~                                         [20;1H~                                         [21;1H~                                         [22;1H~                                         [23;1H~                                         [24;1H~                                         [25;1H~                                         [m[26;25H214,5[9CBot[11;9H[?25h[26;1H[?2004l[?1l>[>4;m[?1049l[23;0;0tVim: Caught deadly signal HUP
+Vim: Finished.
+[26;1H[23;2t[23;1t= 19.442650357057442, K_I = 0.07048295020996492
+Residue = 1291.0108
+IC = 291.0827
+Time elapsed:1.27
+
+#23 model calculating...
+=============================================
+        2        
+       K *b      
+-----------------
+            4    
+ 2       K_I     
+K  + ------------
+                2
+     / 2      2\ 
+     \A  + K_I / 
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Quadratic, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 8.146631587303744, K = 1.9879711827654565e-07, K_I = -4.3297144326010864e-10
+Residue = 880.8330
+IC = 245.2052
+Time elapsed:1.45
+
+#24 model calculating...
+=============================================
+                      n
+ n           /   A   \ 
+K *b + alpha*|-------| 
+             \A + K_I/ 
+-----------------------
+                  n    
+     n   /   A   \     
+    K  + |-------|     
+         \A + K_I/     
+Type = Inducible
+Specs = Hill, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 4.147118824905425, b = -1.6249367566416413, K = 1.459804514888613e-07, n = 0.44363575505043684, K_I = 0.0024067789050520386
+Residue = 115.5152
+IC = 5.4293
+Time elapsed:3.78
+
+#25 model calculating...
+=============================================
+                      n
+ n           /  K_I  \ 
+K *b + alpha*|-------| 
+             \A + K_I/ 
+-----------------------
+                  n    
+     n   /  K_I  \     
+    K  + |-------|     
+         \A + K_I/     
+Type = Inducible
+Specs = Hill, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 3.6686975000000004, b = 0.36686975000000005, K = 5.4999999999999996e-08, n = 1.0, K_I = 0.001
+Residue = 10000000000.0000
+IC = 2198.6031
+Time elapsed:3.88
+
+#26 model calculating...
+=============================================
+                        n
+             /     2   \ 
+ n           |    A    | 
+K *b + alpha*|---------| 
+             | 2      2| 
+             \A  + K_I / 
+-------------------------
+                    n    
+         /     2   \     
+     n   |    A    |     
+    K  + |---------|     
+         | 2      2|     
+         \A  + K_I /     
+Type = Inducible
+Specs = Hill, Basal_expression, Inducer_Quadratic, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 4.312625111715321, b = 0.06514931349955044, K = 3.184074156422604e-08, n = 2.11372330207102, K_I = 3.987831906866019e-05
+Residue = 10.7952
+IC = -279.0069
+Time elapsed:4.26
+
+#27 model calculating...
+=============================================
+                        n
+             /      2  \ 
+ n           |   K_I   | 
+K *b + alpha*|---------| 
+             | 2      2| 
+             \A  + K_I / 
+-------------------------
+                    n    
+         /      2  \     
+     n   |   K_I   |     
+    K  + |---------|     
+         | 2      2|     
+         \A  + K_I /     
+Type = Inducible
+Specs = Hill, Basal_expression, Inducer_Quadratic, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 3.6686975000000004, b = 0.36686975000000005, K = 5.4999999999999996e-08, n = 1.0, K_I = 0.001
+Residue = 10000000000.0000
+IC = 2198.6031
+Time elapsed:4.82
+
+#28 model calculating...
+=============================================
+               n
+      /   A   \ 
+alpha*|-------| 
+      \A + K_I/ 
+----------------
+              n 
+ n   /   A   \  
+K  + |-------|  
+     \A + K_I/  
+Type = Inducible
+Specs = Hill, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 4.363328193021768, K = 3.5544548382142327e-07, n = 1.9492165655338485, K_I = 0.015672973806083672
+Residue = 11.6171
+IC = -272.2021
+Time elapsed:1.70
+
+#29 model calculating...
+=============================================
+       n       
+      K *b     
+---------------
+              n
+ n   /  K_I  \ 
+K  + |-------| 
+     \A + K_I/ 
+Type = Inducible
+Specs = Hill, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 3.6686975000000004, K = 5.4999999999999996e-08, n = 1.0, K_I = 0.001
+Residue = 10000000000.0000
+IC = 2196.6031
+Time elapsed:2.40
+
+#30 model calculating...
+=============================================
+                 n
+      /     2   \ 
+      |    A    | 
+alpha*|---------| 
+      | 2      2| 
+      \A  + K_I / 
+------------------
+                n 
+     /     2   \  
+ n   |    A    |  
+K  + |---------|  
+     | 2      2|  
+     \A  + K_I /  
+Type = Inducible
+Specs = Hill, No_basal_expression, Inducer_Quadratic, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 4.436765423953318, K = 1.0780916814617442e-07, n = 0.20889793411594915, K_I = -1.5529780426899832e-05
+Residue = 70.7490
+IC = -55.4025
+Time elapsed:2.29
+
+#31 model calculating...
+=============================================
+        n        
+       K *b      
+-----------------
+                n
+     /      2  \ 
+ n   |   K_I   | 
+K  + |---------| 
+     | 2      2| 
+     \A  + K_I / 
+Type = Inducible
+Specs = Hill, No_basal_expression, Inducer_Quadratic, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 5.695533302826907, K = 101.84032834719837, n = -0.05069540219246863, K_I = 0.001944631142728555
+Residue = 487.2328
+IC = 176.1500
+Time elapsed:4.14
+
+Model Choice:
+=============================================
+ n      
+A *alpha
+--------
+ n    n 
+A  + K  
+Type = Inducible
+Specs = Hill, No_basal_expression, Activation
+Parameters:
+alpha = 4.281534086207998, K = 5.644317191434652e-09, n = 2.5433547726517602
+Residue = 10.7239
+IC = -283.8019
