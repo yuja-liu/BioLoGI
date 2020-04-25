@@ -1,0 +1,18 @@
+{
+    "input": {
+        "inducerUnits": "RPKM",
+        "reporterUnits": "RPKM",
+        "inducerTags": ["E2F4"],
+        "replicateTags": ["Exp1"],
+        "reporterTag": "UTP14A",
+        "file": "data/E2F4.tsv"
+    },
+    "solver": {
+        "paraEstimator": "SLSQP",
+        "infoCriteria": "AIC",
+        "modelSet": "Minimum"
+    },
+    "output": {
+        "figureFile": "data/E2F4.png"
+    }
+}

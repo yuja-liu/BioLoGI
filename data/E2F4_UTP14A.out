@@ -1,0 +1,95 @@
+#1 model calculating...
+=============================================
+alpha
+Type = Constant
+Specs = 
+Parameters:
+alpha = 3.387809
+Residue = 108.9923
+IC = -6.2949
+Time elapsed:0.31
+
+#2 model calculating...
+=============================================
+A*alpha + b
+Type = Inducible
+Specs = Linear
+Parameters:
+alpha = 0.7829354370693067, b = 0.7353755583408478
+Residue = 42.1835
+IC = -115.3570
+Time elapsed:0.26
+
+#3 model calculating...
+=============================================
+ 2          2  
+A *alpha + K *b
+---------------
+     2    2    
+    A  + K     
+Type = Inducible
+Specs = Quadratic, Activation, Basal_expression
+Parameters:
+alpha = 11.498212212543955, b = 1.662976864402804, K = 7.446012645575107
+Residue = 41.0006
+IC = -116.6846
+Time elapsed:1.19
+
+#4 model calculating...
+=============================================
+ 2          2  
+A *alpha + K *b
+---------------
+     2    2    
+    A  + K     
+Type = Inducible
+Specs = Quadratic, Repression, Basal_expression
+Parameters:
+alpha = 3.387808897436225, b = 3.3878088974359235, K = 4.343527158871675
+Residue = 108.9923
+IC = -2.2949
+Time elapsed:1.00
+
+#5 model calculating...
+=============================================
+ n          n  
+A *alpha + K *b
+---------------
+     n    n    
+    A  + K     
+Type = Inducible
+Specs = Hill, Activation, Basal_expression
+Parameters:
+alpha = 9.856971591682736, b = -0.917894812264276, K = 4.978992513279855, n = 0.9732759797449576
+Residue = 46.4265
+IC = -100.1434
+Time elapsed:1.90
+
+#6 model calculating...
+=============================================
+ n          n  
+A *alpha + K *b
+---------------
+     n    n    
+    A  + K     
+Type = Inducible
+Specs = Hill, Repression, Basal_expression
+Parameters:
+alpha = 3.387809, b = 0.3387809, K = 3.387809, n = 1.0
+Residue = 10000000000.0000
+IC = 2144.8502
+Time elapsed:1.99
+
+Model Choice:
+=============================================
+ 2          2  
+A *alpha + K *b
+---------------
+     2    2    
+    A  + K     
+Type = Inducible
+Specs = Quadratic, Activation, Basal_expression
+Parameters:
+alpha = 11.498212212543955, b = 1.662976864402804, K = 7.446012645575107
+Residue = 41.0006
+IC = -116.6846

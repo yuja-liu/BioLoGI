@@ -16,3 +16,8 @@
 ~~14. Calculate the Hill coefficient for 3OC6HSL-LuxR~~
 ~~15. Implement gradient-based optimization methods~~
 16. Finish translation
+
+# Stage2: omics analysis and beyond
+
+1. Localize the scripts, change that into all-to-all manner.
+2. What are informative figures?

@@ -197,10 +197,11 @@ def __modelParaInterpreter(modelType, modelSpecs, modelExp) :
 
     # modelType = Inducible
     elif modelType == ModelType.Inducible or modelType == ModelType.Single_Input_Node:
+        # Generate the required theta list
         if ModelSpec.Linear in modelSpecs:
             thetaList = ["alpha", "b"]
-        # Generate the required theta list
-        thetaList = ['alpha', 'b', 'K', 'n']
+        else:
+            thetaList = ['alpha', 'b', 'K', 'n']
         for key in (ModelSpec.Michaelis_Menten, ModelSpec.M_M, ModelSpec.Quadratic, ModelSpec.Dimerized):
             if key in modelSpecs:
                 thetaList.remove('n')
@@ -303,7 +304,7 @@ def genModelSet(modelSet):
     if modelSet == ModelSet.All:
         # List all feasible models, a total of 61
         models.append((ModelType.Constant, ()))
-        models.append((ModelType.Inducible, (ModelSpec.Linear)))
+        models.append((ModelType.Inducible, (ModelSpec.Linear,)))
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Activation, ModelSpec.Repression):
                 for k in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
@@ -315,7 +316,7 @@ def genModelSet(modelSet):
     elif modelSet == ModelSet.Simple_Inducible_Promoter:
         # Netative control
         models.append((ModelType.Constant, ()))
-        models.append((ModelType.Inducible, (ModelSpec.Linear)))
+        models.append((ModelType.Inducible, (ModelSpec.Linear,)))
 
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Activation, ModelSpec.Repression):
@@ -325,7 +326,7 @@ def genModelSet(modelSet):
     elif modelSet == ModelSet.Inducible_Promoter_with_Inducer:
         # Netative control
         models.append((ModelType.Constant, ()))
-        models.append((ModelType.Inducible, (ModelSpec.Linear)))
+        models.append((ModelType.Inducible, (ModelSpec.Linear,)))
 
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Activation, ModelSpec.Reperssion):
@@ -337,7 +338,7 @@ def genModelSet(modelSet):
     elif modelSet == ModelSet.Activation_System:
         # Netative control
         models.append((ModelType.Constant, ()))
-        models.append((ModelType.Inducible, (ModelSpec.Linear)))
+        models.append((ModelType.Inducible, (ModelSpec.Linear,)))
         # Simple Activation
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
@@ -352,7 +353,7 @@ def genModelSet(modelSet):
     elif modelSet == ModelSet.Repression_System:
         # Netative control
         models.append((ModelType.Constant, ()))
-        models.append((ModelType.Inducible, (ModelSpec.Linear)))
+        models.append((ModelType.Inducible, (ModelSpec.Linear,)))
         # Simple repression
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
             for j in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
@@ -369,7 +370,11 @@ def genModelSet(modelSet):
     elif modelSet == ModelSet.Minimum:
         models += [(ModelType.Constant, ()),
                 (ModelType.Inducible, (ModelSpec.Linear,)),
+                (ModelType.Inducible, (ModelSpec.Michaelis_Menten, ModelSpec.Activation, ModelSpec.Basal_expression)),
+                (ModelType.Inducible, (ModelSpec.Michaelis_Menten, ModelSpec.Repression, ModelSpec.Basal_expression)),
                 (ModelType.Inducible, (ModelSpec.Quadratic, ModelSpec.Activation, ModelSpec.Basal_expression)),
-                (ModelType.Inducible, (ModelSpec.Quadratic, ModelSpec.Repression, ModelSpec.Basal_expression))]
+                (ModelType.Inducible, (ModelSpec.Quadratic, ModelSpec.Repression, ModelSpec.Basal_expression)),
+                (ModelType.Inducible, (ModelSpec.Hill, ModelSpec.Activation, ModelSpec.Basal_expression)),
+                (ModelType.Inducible, (ModelSpec.Hill, ModelSpec.Repression, ModelSpec.Basal_expression))]
 
     return models
