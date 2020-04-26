@@ -61,6 +61,7 @@ def main():
         exit()
     else:
         config = ioUtils.readConfig(configPath)
+
         # Parse the config
         if "input" not in config.keys():
             raise Exception("[Tentative] the input field is required in configuration")
@@ -78,10 +79,18 @@ def main():
                 config.get('solver', {}).get('modelSet', None)]
         figurePath = config.get('output', {}).get('figureFile', None)
 
-        inference.selectModel(filePath, inducerTags, replicateTags, reporterTag,
+        # inducer/reporter matrix from file
+        inducer, reporter, reporterStd = ioUtils.readInput(filePath, inducerTags, replicateTags, reporterTag)
+
+        bestModel, _ = inference.selectModel(inducer, reporter, reporterStd,
+                inducerTags, replicateTags, reporterTag,
                 modelSolver, modelSet, modelCriterion,
                 inducerUnits, reporterUnits, figurePath,
                 quiet = False)
+
+        # print model selection
+        print('Model Choice:')
+        inference.printModel(*bestModel)
 
 # command line entrance
 if __name__ == "__main__":

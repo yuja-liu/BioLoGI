@@ -23,7 +23,11 @@ def plotModel2D(X, mu, std, theta, model, inputTag = "Inducer", outputTag = "FP"
     except ValueError:
         raise Exception("Usage: plotModel(X, std, mu, theta, model), where X, std and mu should be iterators")
 
-    X1D = [x[0] for x in X]    # Extract the 1st dimension
+    try:
+        len(X[0])    # a hack to raise error if 1-dimensional
+        X1D = [x[0] for x in X]    # Extract the 1st dimension
+    except TypeError:
+        X1D = X
     # 10% extrapolation on both ends, on a log scale
     # Handling 0 input
     lower = min(X1D)
@@ -40,7 +44,7 @@ def plotModel2D(X, mu, std, theta, model, inputTag = "Inducer", outputTag = "FP"
         plotBounds = (Xmin - 0.2 * (Xmax - Xmin), Xmax + 0.2 * (Xmax - Xmin))
     except NameError:    # Xmin does not exist, which is caused by all-zero inducer
         raise Exception("All-zero inducer input is not accepted")
-    plotRange = np.exp(np.arange(*plotBounds, 1E-1))
+    plotRange = np.exp(np.arange(*plotBounds, 1E-2))
     if lower < 1E-12:    # give back the 0 at front
         plotRange = np.insert(plotRange, 0, 0.0)
     Y = model(plotRange, theta)

@@ -152,16 +152,19 @@ def genModel(modelType, modelSpecs = (), plain_print=True) :
     return returnExp, model, constraints, paraList
 
 # Generate default parameters: useful for initials
-def defaultPara(thetaList, inducer, reporter):
+def defaultPara(thetaList, inducer, reporter, repression = False):
     default = {}
     __supplementPara(default, thetaList, True)
 
     # get default parameter according to input data
     # TODO: the relationship between alpha & b fits only activation!!
-    if 'alpha' in thetaList:
-        default['alpha'] = np.median(reporter)
-        if 'b' in thetaList:
+    if 'alpha' in thetaList:    # Actually, alpha should always in theta
+        if 'b' in thetaList and not repression:
+            default['alpha'] = np.median(reporter)
             default['b'] = default['alpha'] / 10
+        elif 'b' in thetaList and repression:
+            default['b'] = np.median(reporter)
+            default['alpha'] = default['b'] / 10
     else:    # repression
         default['b'] = np.median(reporter)
     if 'I' in thetaList:
@@ -344,9 +347,9 @@ def genModelSet(modelSet):
             for j in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
                 models.append((ModelType.Inducible, (i, j, ModelSpec.Activation)))
         # Activation with inducer
-        for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
+        for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic):
             for j in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
-                for k in (ModelSpec.Inducer_Michaelis_Menten, ModelSpec.Inducer_Quadratic):
+                for k in (ModelSpec.Inducer_Michaelis_Menten,):
                     for p in ((ModelSpec.Activation, ModelSpec.Inducer_Activation),
                             (ModelSpec.Repression, ModelSpec.Inducer_Repression)):
                         models.append((ModelType.Inducible, (i, j, k, *p, ModelSpec.Inducer)))
@@ -359,9 +362,9 @@ def genModelSet(modelSet):
             for j in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
                 models.append((ModelType.Inducible, (i, j, ModelSpec.Repression)))
         # Repression with inducer
-        for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic, ModelSpec.Hill):
+        for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic):
             for j in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
-                for k in (ModelSpec.Inducer_Michaelis_Menten, ModelSpec.Inducer_Quadratic):
+                for k in (ModelSpec.Inducer_Michaelis_Menten,):
                     for p in ((ModelSpec.Activation, ModelSpec.Inducer_Repression),
                             (ModelSpec.Repression, ModelSpec.Inducer_Activation)):
                         models.append((ModelType.Inducible, (i, j, k, *p, ModelSpec.Inducer)))

@@ -81,7 +81,7 @@ def genJac(inducer, reporter, reporterStd, expression, thetaList):
                     [(PstFunc(A[0], theta) - x) * jacFunc[i](A[0], theta)\
                         for A, x in zip(inducer, reporter)]
                 )
-            except IndexError:
+            except TypeError:
                 dSSE = 2 * sum(
                     [(PstFunc(A, theta) - x) * jacFunc[i](A, theta)\
                         for A, x in zip(inducer, reporter)]
@@ -102,8 +102,7 @@ def estimatePara(sse, X0, jacobian = None, constraints = None, bounds = None, me
 
     # Always first use Nelder_Mead to estimate initial theta
     NMres = minimize(sse, X0, method = "Nelder-Mead", options = {
-        "maxiter": 100,
-        "xatol": 1E-4,
+        "maxiter": 20,
         "disp": False
     })
     newX0 = NMres.x
@@ -119,7 +118,7 @@ def estimatePara(sse, X0, jacobian = None, constraints = None, bounds = None, me
         })
     elif method == ModelSolver.BFGS:
         res = minimize(sse, newX0, jac = jacobian, method = "BFGS", options = {
-            "maxiter": 100,
+            "maxiter": 50,
             "gtol": 1E-4,
             "disp": False
         })
@@ -147,17 +146,19 @@ def infoCriteria(sse, theta, reporter, method = ModelCriterion.AIC):
     else:
         return sse
 
-def selectModel(filePath, inducerTags, replicateTags, reporterTag,
-        modelSolver = "Nelder_Mead", modelSet = "Simple_Inducible_Promoter", modelCriterion = "AIC",
-        inducerUnits = "M", reporterUnits = "M", figPath = None, quiet=False):
-    # Read input data
-    inducer, reporter, reporterStd = ioUtils.readInput(filePath, inducerTags, replicateTags, reporterTag)
+def selectModel(inducer, reporter, reporterStd,
+        inducerTags, replicateTags, reporterTag,
+        modelSolver = ModelSolver.N_M, modelSet = ModelSet.Simple_Inducible_Promoter, modelCriterion = ModelCriterion.AIC,
+        inducerUnits = "M", reporterUnits = "M",
+        figPath = None, quiet=True, plot = True):
 
     # Generate model candicates (alternative mechanistic hypotheses)
     modelSet = modelBase.genModelSet(modelSet)
 
     # Initialize best model
     minIC, bestModel, bestModelMeta = float('inf'), None, None
+    # also returning all models
+    metas = []
 
     for (i, modelKey) in enumerate(modelSet):
         # Generate model
@@ -175,7 +176,7 @@ def selectModel(filePath, inducerTags, replicateTags, reporterTag,
         # Parameterization
         startTime = time.time()
         inferredTheta, residue = estimatePara(
-                sse, modelBase.defaultPara(thetaList, inducer, reporter),
+                sse, modelBase.defaultPara(thetaList, inducer, reporter, repression = (ModelSpec.Repression in modelKey[1])),
                 jacobian, constraints, method = modelSolver
         )
         duration = time.time() - startTime
@@ -183,26 +184,27 @@ def selectModel(filePath, inducerTags, replicateTags, reporterTag,
         # Calculate Infomation Criteria
         IC = infoCriteria(residue, inferredTheta, reporter, modelCriterion)
 
+        # Compose model meta
+        meta = (*modelKey, pretty(exp, use_unicode = False), thetaList, inferredTheta, residue, IC)
+        metas.append(meta)
+
         # Print model info
         if not quiet:
-            printModel(*modelKey, pretty(exp, use_unicode = False), thetaList, inferredTheta, residue, IC)
+            printModel(*meta)
             print("Time elapsed:%.2f\n"%duration)
 
         if IC < minIC:
             minIC = IC
             bestModel = model
-            bestModelMeta = (*modelKey, pretty(exp, use_unicode = False), thetaList, inferredTheta, residue, IC)
-
-    # Print model selection
-    print('Model Choice:')
-    printModel(*bestModelMeta)
+            bestModelMeta = meta
 
     # Plotting
     thetaDict = {key: val for key, val in zip(bestModelMeta[3], bestModelMeta[4])}
-    plotUtils.plotModel2D(inducer, reporter, reporterStd, thetaDict, bestModel,
-            inducerTags[0], reporterTag, inducerUnits, reporterUnits, figPath)
+    if plot:
+        plotUtils.plotModel2D(inducer, reporter, reporterStd, thetaDict, bestModel,
+                inducerTags[0], reporterTag, inducerUnits, reporterUnits, figPath)
 
-    return bestModelMeta
+    return bestModelMeta, metas
 
 def printModel(modelType, modelSpecs, expression, thetaList, theta, residue, IC):
     print('=============================================')
