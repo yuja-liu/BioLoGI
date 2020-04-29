@@ -8,7 +8,7 @@
         "file": "data/pBAD_rbspBb.tsv"
     },
     "solver": {
-        "paraEstimator": "BFGS",
+        "paraEstimator": "SLSQP",
         "infoCriteria": "AIC",
         "modelSet": "Activation_System"
     }

@@ -93,7 +93,7 @@ def main():
 
         # print model selection
         print('Model Choice:')
-        inference.printModel(*bestModel)
+        inference.printModel(bestModel)
 
 # command line entrance
 if __name__ == "__main__":

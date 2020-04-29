@@ -26,6 +26,20 @@ ModelSolver = Enum("ModelSolver", ("Nelder_Mead", "N_M", "BFGS", "COBYLA", "SLSQ
 # ModelCriterion defines the standard to evaluate a given model{expression and the parameters}, basically Infromation Criteria
 ModelCriterion = Enum("ModelCriterion", ("AIC"))
 
+class Solution:
+    '''
+    To Store the metadata of a modol solution
+    '''
+
+    def __init__(self, modelType, modelSpecs, expression, thetaKey, thetaVal, residue, IC):
+        self.modelType = modelType
+        self.modelSpecs = modelSpecs
+        self.expression = expression
+        self.thetaKey = thetaKey
+        self.thetaVal = thetaVal
+        self.residue = residue
+        self.IC = IC
+
 # thetaList is necessary for buidling sse func. However as thetaList should be considered as a part of the model, no additional info. is needed.
 # inducer E R^(k*N), reporter E R^N, reporterStd E R^N
 def genSSE(inducer, reporter, reporterStd, model, thetaList):
@@ -114,7 +128,7 @@ def estimatePara(sse, X0, jacobian = None, constraints = None, bounds = None, me
     elif method == ModelSolver.COBYLA:
         res = minimize(sse, newX0, constraints = constraints, method = "COBYLA", options = {
             "tol": 1E-4,
-            "maxiter": 100,
+            "maxiter": 50,
             "disp": False
         })
     elif method == ModelSolver.BFGS:
@@ -147,20 +161,23 @@ def infoCriteria(sse, theta, reporter, method = ModelCriterion.AIC):
     else:
         return sse
 
-def __fitModel(paras):
+gInducer, gReporter, gReporterStd = [], [], []
+gModelSolver, gModelCrterion = None, None
+
+def __fitModel(modelKeys):
     '''
     Paralleled version of model fitting
     '''
 
-    modelType, modelSpecs, inducer, reporter, reporterStd, modelSolver, modelCriterion = paras
+    modelType, modelSpecs = modelKeys
 
     # Generate the model
     exp, model, constraints, thetaList = modelBase.genModel(modelType, modelSpecs, plain_print=False)
 
     # Get SSE
-    sse = genSSE(inducer, reporter, reporterStd, model, thetaList)
+    sse = genSSE(gInducer, gReporter, gReporterStd, model, thetaList)
     # Also get jacobian of SSE
-    jacobian = genJac(inducer, reporter, reporterStd, exp, thetaList)
+    jacobian = genJac(gInducer, gReporter, gReporterStd, exp, thetaList)
 
     # Is this repression or activation model?
     repression = False
@@ -172,19 +189,22 @@ def __fitModel(paras):
     # Parameterization
     startTime = time.time()
     inferredTheta, residue = estimatePara(
-            sse, modelBase.defaultPara(thetaList, inducer, reporter, repression = repression),
-            jacobian, constraints, method = modelSolver
+            sse, modelBase.defaultPara(thetaList, gInducer, gReporter, repression = repression),
+            jacobian, constraints, method = gModelSolver
     )
     duration = time.time() - startTime
 
     # Calculate Infomation Criteria
-    IC = infoCriteria(residue, inferredTheta, reporter, modelCriterion)
+    IC = infoCriteria(residue, inferredTheta, gReporter, gModelCriterion)
 
     # Compose model meta
-    meta = (modelType, modelSpecs, pretty(exp, use_unicode=False), thetaList, inferredTheta, residue, IC)
+    meta = Solution(
+            modelType, modelSpecs,
+            pretty(exp, use_unicode=False),
+            thetaList, inferredTheta,
+            residue, IC)
 
     return meta, duration
-
 
 def selectModel(inducer, reporter, reporterStd,
         inducerTags, replicateTags, reporterTag,
@@ -196,6 +216,10 @@ def selectModel(inducer, reporter, reporterStd,
     Notice that fitting of alternative models is paralled. Thus, selectModel() cannot be run multiprocessed!
     '''
 
+    global gInducer, gReporter, gReporterStd, gModelSolver, gModelCriterion
+    gInducer, gReporter, gReporterStd = inducer, reporter, reporterStd
+    gModelSolver, gModelCriterion = modelSolver, modelCriterion
+
     # Generate model candicates (alternative mechanistic hypotheses)
     modelSet = modelBase.genModelSet(modelSet)
 
@@ -206,8 +230,7 @@ def selectModel(inducer, reporter, reporterStd,
 
     cpuCount = int(mp.cpu_count())    # Num of cpu cores
     pool = mp.Pool(cpuCount)    # A pool of processes
-    load = [(*mk, inducer, reporter, reporterStd, modelSolver, modelCriterion) for mk in modelSet]
-    for meta, duration in pool.imap_unordered(__fitModel, load):
+    for meta, duration in pool.imap_unordered(__fitModel, modelSet):
         count += 1
         metas.append(meta)
 
@@ -215,32 +238,30 @@ def selectModel(inducer, reporter, reporterStd,
         if not quiet:
             print("========================================")
             print("# %d Model"%count)
-            printModel(*meta)
+            printModel(meta)
             print("Time elapsed:%.2f\n"%duration)
 
         # Best model
-        IC = meta[6]
-        if IC < minIC:
-            minIC = IC
+        if meta.IC < minIC:
+            minIC = meta.IC
             bestModelMeta = meta
     pool.close()
     pool.join()
 
     # Plotting
-    thetaDict = {key: val for key, val in zip(bestModelMeta[3], bestModelMeta[4])}
-    bestModelType, bestModelSpecs = bestModelMeta[:2]
-    _, bestModel, _, _ = modelBase.genModel(bestModelType, bestModelSpecs)
+    thetaDict = {key: val for key, val in zip(bestModelMeta.thetaKey, bestModelMeta.thetaVal)}
+    _, bestModel, _, _ = modelBase.genModel(bestModelMeta.modelType, bestModelMeta.modelSpecs)
     if plot:
         plotUtils.plotModel2D(inducer, reporter, reporterStd, thetaDict, bestModel,
                 inducerTags[0], reporterTag, inducerUnits, reporterUnits, figPath)
 
     return bestModelMeta, metas
 
-def printModel(modelType, modelSpecs, expression, thetaList, theta, residue, IC):
+def printModel(meta):
     print('=============================================')
-    print('%s\nType = %s'%(expression, modelType.name))
-    print('Specs = ' + ', '.join([spec.name for spec in modelSpecs]))
+    print('%s\nType = %s'%(meta.expression, meta.modelType.name))
+    print('Specs = ' + ', '.join([spec.name for spec in meta.modelSpecs]))
     print('Parameters:\n' +\
-            ', '.join([key + ' = ' + str(val) for key, val in zip(thetaList, theta)]))
-    print('Residue = %.4f\nIC = %.4f'%(residue, IC))
+            ', '.join([key + ' = ' + str(val) for key, val in zip(meta.thetaKey, meta.thetaVal)]))
+    print('Residue = %.4f\nIC = %.4f'%(meta.residue, meta.IC))
     stdout.flush()
