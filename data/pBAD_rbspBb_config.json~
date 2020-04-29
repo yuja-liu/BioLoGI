@@ -11,5 +11,8 @@
         "paraEstimator": "BFGS",
         "infoCriteria": "AIC",
         "modelSet": "Activation_System"
+    },
+    "output": {
+        "figureFile": "data/pBAD_rbspBb.png"
     }
 }
