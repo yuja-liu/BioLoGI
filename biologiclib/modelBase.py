@@ -349,7 +349,7 @@ def genModelSet(modelSet):
         # Activation with inducer
         for i in (ModelSpec.Michaelis_Menten, ModelSpec.Quadratic):
             for j in (ModelSpec.Basal_expression, ModelSpec.No_basal_expression):
-                for k in (ModelSpec.Inducer_Michaelis_Menten,):
+                for k in (ModelSpec.Inducer_Michaelis_Menten,):    # For simplification, only keep Michaelis Menten for inducer Hill
                     for p in ((ModelSpec.Activation, ModelSpec.Inducer_Activation),
                             (ModelSpec.Repression, ModelSpec.Inducer_Repression)):
                         models.append((ModelType.Inducible, (i, j, k, *p, ModelSpec.Inducer)))

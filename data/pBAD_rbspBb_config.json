@@ -8,8 +8,11 @@
         "file": "data/pBAD_rbspBb.tsv"
     },
     "solver": {
-        "paraEstimator": "Nelder_Mead",
+        "paraEstimator": "BFGS",
         "infoCriteria": "AIC",
-        "modelSet": "Minimum"
+        "modelSet": "Activation_System"
+    },
+    "output": {
+        "figureFile": "data/pBAD_rbspBb.png"
     }
 }

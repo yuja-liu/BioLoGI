@@ -18,6 +18,7 @@ from functools import reduce
 from biologiclib import ioUtils, modelBase, plotUtils
 from biologiclib.modelBase import ModelType, ModelSpec, ModelSet
 from sympy import symbols, lambdify, diff, pretty
+import multiprocessing as mp
 
 # ModelSolver defines the possible procedures to estimate the parameters of a single mechanistic model
 ModelSolver = Enum("ModelSolver", ("Nelder_Mead", "N_M", "BFGS", "COBYLA", "SLSQP"))
@@ -146,46 +147,67 @@ def infoCriteria(sse, theta, reporter, method = ModelCriterion.AIC):
     else:
         return sse
 
+def __fitModel(paras):
+    '''
+    Paralleled version of model fitting
+    '''
+
+    modelType, modelSpecs, inducer, reporter, reporterStd, modelSolver, modelCriterion = paras
+
+    # Generate the model
+    exp, model, constraints, thetaList = modelBase.genModel(modelType, modelSpecs, plain_print=False)
+
+    # Get SSE
+    sse = genSSE(inducer, reporter, reporterStd, model, thetaList)
+    # Also get jacobian of SSE
+    jacobian = genJac(inducer, reporter, reporterStd, exp, thetaList)
+
+    # Is this repression or activation model?
+    repression = False
+    if ModelSpec.Repression in modelSpecs and ModelSpec.Inducer_Repression not in modelSpecs:
+        repression = True
+    elif ModelSpec.Repression not in modelSpecs and ModelSpec.Inducer_Repression in modelSpecs:
+        repression = True
+
+    # Parameterization
+    startTime = time.time()
+    inferredTheta, residue = estimatePara(
+            sse, modelBase.defaultPara(thetaList, inducer, reporter, repression = repression),
+            jacobian, constraints, method = modelSolver
+    )
+    duration = time.time() - startTime
+
+    # Calculate Infomation Criteria
+    IC = infoCriteria(residue, inferredTheta, reporter, modelCriterion)
+
+    # Compose model meta
+    meta = (modelType, modelSpecs, pretty(exp, use_unicode=False), thetaList, inferredTheta, residue, IC)
+
+    return meta, duration
+
+
 def selectModel(inducer, reporter, reporterStd,
         inducerTags, replicateTags, reporterTag,
         modelSolver = ModelSolver.N_M, modelSet = ModelSet.Simple_Inducible_Promoter, modelCriterion = ModelCriterion.AIC,
         inducerUnits = "M", reporterUnits = "M",
         figPath = None, quiet=True, plot = True):
+    '''
+    Select the best model interpreting given inducer/reporter characterization data.
+    Notice that fitting of alternative models is paralled. Thus, selectModel() cannot be run multiprocessed!
+    '''
 
     # Generate model candicates (alternative mechanistic hypotheses)
     modelSet = modelBase.genModelSet(modelSet)
 
-    # Initialize best model
-    minIC, bestModel, bestModelMeta = float('inf'), None, None
-    # also returning all models
+    # parallel model fitting
     metas = []
+    minIC = float("inf")
 
-    for (i, modelKey) in enumerate(modelSet):
+    cpuCount = int(mp.cpu_count())    # Num of cpu cores
+    pool = mp.Pool(cpuCount)    # A pool of processes
+    load = [(*mk, inducer, reporter, reporterStd, modelSolver, modelCriterion) for mk in modelSet]
+    for meta, duration in pool.imap_unordered(__fitModel, load):
         # Generate model
-        exp, model, constraints, thetaList = modelBase.genModel(*modelKey, plain_print = False)
-
-        # Show model caculating
-        if not quiet:
-            print('#%d model calculating...'%(i+1))
-
-        # Get SSE
-        sse = genSSE(inducer, reporter, reporterStd, model, thetaList)
-        # Also get jacobian of SSE
-        jacobian = genJac(inducer, reporter, reporterStd, exp, thetaList)
-
-        # Parameterization
-        startTime = time.time()
-        inferredTheta, residue = estimatePara(
-                sse, modelBase.defaultPara(thetaList, inducer, reporter, repression = (ModelSpec.Repression in modelKey[1])),
-                jacobian, constraints, method = modelSolver
-        )
-        duration = time.time() - startTime
-
-        # Calculate Infomation Criteria
-        IC = infoCriteria(residue, inferredTheta, reporter, modelCriterion)
-
-        # Compose model meta
-        meta = (*modelKey, pretty(exp, use_unicode = False), thetaList, inferredTheta, residue, IC)
         metas.append(meta)
 
         # Print model info
@@ -193,13 +215,18 @@ def selectModel(inducer, reporter, reporterStd,
             printModel(*meta)
             print("Time elapsed:%.2f\n"%duration)
 
+        # Best model
+        IC = meta[6]
         if IC < minIC:
             minIC = IC
-            bestModel = model
             bestModelMeta = meta
+    pool.close()
+    pool.join()
 
     # Plotting
     thetaDict = {key: val for key, val in zip(bestModelMeta[3], bestModelMeta[4])}
+    bestModelType, bestModelSpecs = bestModelMeta[:2]
+    _, bestModel, _, _ = modelBase.genModel(bestModelType, bestModelSpecs)
     if plot:
         plotUtils.plotModel2D(inducer, reporter, reporterStd, thetaDict, bestModel,
                 inducerTags[0], reporterTag, inducerUnits, reporterUnits, figPath)
