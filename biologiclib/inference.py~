@@ -202,19 +202,16 @@ def selectModel(inducer, reporter, reporterStd,
     # parallel model fitting
     metas = []
     minIC = float("inf")
-    count = 0    # number of model being solved
 
     cpuCount = int(mp.cpu_count())    # Num of cpu cores
     pool = mp.Pool(cpuCount)    # A pool of processes
     load = [(*mk, inducer, reporter, reporterStd, modelSolver, modelCriterion) for mk in modelSet]
     for meta, duration in pool.imap_unordered(__fitModel, load):
-        count += 1
+        # Generate model
         metas.append(meta)
 
         # Print model info
         if not quiet:
-            print("========================================")
-            print("# %d Model"%count)
             printModel(*meta)
             print("Time elapsed:%.2f\n"%duration)
 
