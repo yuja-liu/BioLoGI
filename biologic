@@ -10,7 +10,7 @@ Xi'an Jiaotong University, Biomedical Informatics & Genomics Center
 main.py is the entrance script. It handles the command line parameters, and returns the best model as well as its parameter(s).
 '''
 
-from biologiclib import ioUtils, inference
+from biologiclib import ioUtils, inference, modelBase
 from biologiclib.modelBase import ModelSet
 from biologiclib.inference import ModelSolver, ModelCriterion
 import sys, getopt
@@ -84,6 +84,7 @@ def main():
         inducer, reporter, reporterStd = ioUtils.readInput(filePath, inducerTags, replicateTags, reporterTag)
 
         startTime = time.time()
+        modelBase.initializeModelBase()
         bestModel, _ = inference.selectModel(inducer, reporter, reporterStd,
                 inducerTags, replicateTags, reporterTag,
                 modelSolver, modelSet, modelCriterion,

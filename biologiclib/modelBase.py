@@ -9,7 +9,7 @@ modelBase.py is the knowledgebase of bio-models. It includes specifications/defi
 '''
 
 from enum import Enum
-from sympy import symbols, lambdify, pretty
+from sympy import symbols, lambdify, pretty, diff
 import warnings
 import numpy as np
 
@@ -45,10 +45,87 @@ def whichCV(cv) :
 def isCV(cv) :
     print(__findCV(cv) is not None)
 
+# Store model equations and jacobians to boost the process
+eqnBase = {}
+jacBase = {}
+
+def initializeModelBase():
+    '''
+    initializeModelBase() constructs all functional models in the model-base,
+    specifically, those used in genModel() and genJacobian().
+    When fitting models in large scale, call this function first to accelerate the process.
+    '''
+    
+    modelSetAll = genModelSet(ModelSet["All"])
+    for modelType, modelSpecs in modelSetAll:
+        eqn = genEquation(modelType, modelSpecs)
+        key = (modelType, frozenset(modelSpecs))
+        eqnBase[key] = eqn
+        _, _, thetaKeys = __modelParaInterpreter(modelType, modelSpecs, eqn)
+        jac = [diff(eqn, x) for x in thetaKeys]
+        jacBase[str(eqn)] = jac
+
+def genEquation(modelType, modelSpecs = ()):
+    '''
+    genEquation(modelType, modelSpecs = ())
+    
+    Generate the mathematical expression of the model corresponding to given model-type and model-specifications.
+    Other functions, e.g. genModel() wraps the equation and equips it with a parameter handler
+    '''
+
+    # TODO: Parameter type inspection
+
+    # Shortcut model equation if is initialized
+    key = (modelType, frozenset(modelSpecs))
+    if key in eqnBase:
+        return eqnBase[key]
+
+    # De novo equation generation
+    if modelType == ModelType.Constant:
+        alpha = symbols('alpha')
+        Pst = alpha    # Pst is the steady-state [P]
+
+    elif modelType == ModelType.Inducible:
+        # For all inducible models, 'A' is the independent variable
+        if ModelSpec.Linear in modelSpecs:
+            A, alpha, b = symbols('A alpha b')
+            Pst = alpha * A + b
+        else:
+            A, alpha, b, K, n = symbols('A alpha b K n')
+            Pst = (alpha * A**n + b * K**n) / (A**n + K**n)
+            if ModelSpec.Michaelis_Menten in modelSpecs or ModelSpec.M_M in modelSpecs:
+                Pst = Pst.subs(n, 1)
+            elif ModelSpec.Quadratic in modelSpecs or ModelSpec.Dimerized in modelSpecs:
+                Pst = Pst.subs(n, 2)
+            if ModelSpec.No_basal_expression in modelSpecs:
+                if ModelSpec.Activation in modelSpecs:
+                    Pst = Pst.subs(b, 0)
+                elif ModelSpec.Repression in modelSpecs:
+                    Pst = Pst.subs(alpha, 0)
+                else:
+                    Pst = Pst.subs(b, 0)
+            if ModelSpec.Inducer in modelSpecs:
+                n_I, K_I, a_I, b_I = symbols('n_I K_I a_I b_I')
+                # General model for inducer binding
+                A_aster = ((a_I*A**n_I + b_I*K_I**n_I) / (A**n_I + K_I**n_I))
+                if ModelSpec.Inducer_Activation in modelSpecs: 
+                    A_aster = A_aster.subs([(a_I, 1), (b_I, 0)])
+                elif ModelSpec.Inducer_Repression in modelSpecs:
+                    A_aster = A_aster.subs([(a_I, 0), (b_I, 1)])
+                else:   #default
+                    A_aster = A_aster.subs([(a_I, 1), (b_I, 0)])
+                if ModelSpec.Inducer_Michaelis_Menten in modelSpecs:
+                    A_aster = A_aster.subs(n_I, 1)
+                elif ModelSpec.Inducer_Quadratic in modelSpecs:
+                    A_aster = A_aster.subs(n_I, 2)
+                else:    #default
+                    A_aster = A_aster.subs(n_I, 1)
+                Pst = Pst.subs(A, A_aster)
+
+    return Pst
+
 def genModel(modelType, modelSpecs = (), plain_print=True) :
-    ########################################
     # Check variable types. modelType: enum, modelSpecs: list/tuple
-    ########################################
     if type(modelSpecs) != list and type(modelSpecs) != tuple :
         raise Exception('Usage: genModel(modelType, modelSpecs), modelSpecs should be either list or tuple')
     for key in modelSpecs:
@@ -57,99 +134,19 @@ def genModel(modelType, modelSpecs = (), plain_print=True) :
     if type(modelType) != ModelType :
         raise Exception('Usage: genModel(modelType, modelSpecs), modelType should be a ModelType Enum')
 
-    ########################################
-    # modelType = Constant(constitutive expression)
-    ########################################
-    if modelType == ModelType.Constant :
-        if len(modelSpecs) != 0:
-            raise Exception('Usage: genModel(modelType, modelSpecs), where if modelType is "Constant", no modelSpecs should be specified')
-        alpha = symbols('alpha')
-        Pst = alpha    # Pst is the steady-state [P]
+    # Check validation and coexistence of modelType & modelSpecs
+    __modelSpecsInspector(modelType, modelSpecs)
 
-    ########################################
-    # modelType = Inducible(single-input node, i.e. inducible promoter system)
-    ########################################
-    if modelType == ModelType.Inducible or modelType == ModelType.Single_Input_Node:
-        # Some modelSpecs cannot co-exist
-        # "Activation" cannot co-exist w/ "Repression"
-        if ModelSpec.Activation in modelSpecs and ModelSpec.Repression in modelSpecs :
-            raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "Activation" and "Repression" cannot coexist')
-        if ModelSpec.Inducer_Activation in modelSpecs and ModelSpec.Inducer_Repression in modelSpecs:
-            raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "Inducer_Activation" and "Inducer_Repression" cannot coexist')
-        # "Michaelis_Menten" cannot co-exist w/ "Quadratic" or "Hill", though "Hill" does not specify Hill coefficient
-        if int(ModelSpec.Michaelis_Menten in modelSpecs or ModelSpec.M_M in modelSpecs) + \
-                int(ModelSpec.Quadratic in modelSpecs or ModelSpec.Dimerized in modelSpecs) + int(ModelSpec.Hill in modelSpecs) >= 2 :
-            raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "Michaelis_Menten" (or "M_M"), "Quadratic" (or "Dimerized"), or "Hill" cannot coexist')
-        if ModelSpec.Inducer_Michaelis_Menten in modelSpecs and ModelSpec.Inducer_Quadratic in modelSpecs:
-            # Inducer "Hill coefficient" is constrained to 1 or 2
-            raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "Inducer_Michaelis_Menten" and "Inducer_Quadratic" cannot coexist')
-        # "Basal_expression" cannot co-exit w/ "No_basal_expression"
-        if ModelSpec.Basal_expression in modelSpecs and ModelSpec.No_basal_expression in modelSpecs :
-            raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "Basal_expression" and "No_basal_expression" cannot coexist')
-        # "Inducer_+" keyword depends on "Inducer"
-        for keyword in (ModelSpec.Inducer_Activation, ModelSpec.Inducer_Repression, ModelSpec.Inducer_Michaelis_Menten, ModelSpec.Inducer_Quadratic):
-            if keyword in modelSpecs and ModelSpec.Inducer not in modelSpecs:
-                raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "%s" depends on keyword "Inducer"'%keyword.name)
+    # Generate the mathematical expression of models
+    eqn = genEquation(modelType, modelSpecs)
 
-        ########################################
-        # Hill Function
-        ########################################
-        # A, activator or repressor; alpha, expression(txn + tln) rate; beta, degradation rate, now obsolete; b, leaky expression rate; K, dissociation constant; n, Hill coefficient
-        A, alpha, b, K, n = symbols('A alpha b K n')
-
-        Pst = (alpha * A**n + b * K**n) / (A**n + K**n)
-        if ModelSpec.Michaelis_Menten in modelSpecs or ModelSpec.M_M in modelSpecs:
-            Pst = Pst.subs(n, 1)
-        elif ModelSpec.Quadratic in modelSpecs or ModelSpec.Dimerized in modelSpecs:
-            Pst = Pst.subs(n, 2)
-        if ModelSpec.No_basal_expression in modelSpecs:
-            if ModelSpec.Activation in modelSpecs:
-                Pst = Pst.subs(b, 0)
-            elif ModelSpec.Repression in modelSpecs:
-                Pst = Pst.subs(alpha, 0)
-            else:
-                Pst = Pst.subs(b, 0)
-
-        ########################################
-        # Negative control: linear model
-        ########################################
-        if ModelSpec.Linear in modelSpecs:
-            Pst = alpha * A + b
-
-        ########################################
-        # "Secondary inducer"
-        ########################################
-        if ModelSpec.Inducer in modelSpecs:
-            n_I, K_I, a_I, b_I = symbols('n_I K_I a_I b_I')
-            # General model for inducer binding
-            A_aster = ((a_I*A**n_I + b_I*K_I**n_I) / (A**n_I + K_I**n_I))
-            if ModelSpec.Inducer_Activation in modelSpecs: 
-                A_aster = A_aster.subs([(a_I, 1), (b_I, 0)])
-            elif ModelSpec.Inducer_Repression in modelSpecs:
-                A_aster = A_aster.subs([(a_I, 0), (b_I, 1)])
-            else:   #default
-                A_aster = A_aster.subs([(a_I, 1), (b_I, 0)])
-            if ModelSpec.Inducer_Michaelis_Menten in modelSpecs:
-                A_aster = A_aster.subs(n_I, 1)
-            elif ModelSpec.Inducer_Quadratic in modelSpecs:
-                A_aster = A_aster.subs(n_I, 2)
-            else:    #default
-                A_aster = A_aster.subs(n_I, 1)
-            Pst = Pst.subs(A, A_aster)
-
-    ########################################
     # Pretty print expressions
-    ########################################
-    if plain_print:
-        returnExp = pretty(Pst, use_unicode=False)
-    else:
-        returnExp = Pst
+    returnExp = pretty(eqn, use_unicode=False) if plain_print else eqn
 
-    ########################################
     # Parameter injection
-    ########################################
-    model, constraints, paraList = __modelParaInterpreter(modelType, modelSpecs, Pst)
-    return returnExp, model, constraints, paraList
+    model, constraints, thetaKeys = __modelParaInterpreter(modelType, modelSpecs, eqn)
+
+    return returnExp, model, constraints, thetaKeys
 
 # Generate default parameters: useful for initials
 def defaultPara(thetaList, inducer, reporter, repression = False):
@@ -230,25 +227,6 @@ def __modelParaInterpreter(modelType, modelSpecs, modelExp) :
             except ValueError:
                 raise Exception("Usage: model(X, theta)), where X should be iterable, e.g., a list. Furthermore, X should be a N*k matrix, where k is the dimension of inducer, N is the sample size.")
             
-            # "Invalid value walls"
-#            #########################################
-#            # Check for negative parameters
-#            for key, val in theta.items():
-#                if val < 0:
-#                    #warnings.warn("The parameter %s should be non-negative, but here is set to %f. Returning INF"%(key, val))
-#                    return X * 1E5
-#
-#            # Activation/Repression is controled by parameter conditions
-#            if ModelSpec.No_basal_expression not in modelSpecs:
-#                # If there is no basal expression, than the system is purely activation or repression
-#                if ModelSpec.Activation in modelSpecs and theta['alpha'] < theta['b']:
-#                    warnings.warn('"Activation" keyword implies parameter alpha >= b, which is not the case. Returning INF')
-#                    return X * 1E5    # a hack for vector input
-#                elif ModelSpec.Repression in modelSpecs and theta['alpha'] > theta['b']:
-#                    warnings.warn('"Repression" keyword implies parameter alpha <= b, which is not the case. Returning INF')
-#                    return X * 1E5
-#            #########################################
-
             # Evaluation
             newModelExp = modelExp.subs(theta)
             modelFunc = lambdify(symbols('A'), newModelExp, 'numpy')
@@ -295,6 +273,51 @@ def __modelParaInterpreter(modelType, modelSpecs, modelExp) :
     # Return
     ########################################
     return model, constraints, thetaList
+
+def __modelSpecsInspector(modelType, modelSpecs):
+    '''
+    __modelSpecsInspector() checks the validation of given model-type and model-specifications.
+    Some model-specifications and/or model-types cannot coexist.
+    '''
+
+    if modelType == ModelType.Constant :
+        if len(modelSpecs) != 0:
+            raise Exception('Usage: genModel(modelType, modelSpecs), where if modelType is "Constant", no modelSpecs should be specified')
+
+
+    if modelType == ModelType.Inducible or modelType == ModelType.Single_Input_Node:
+        # 'Linear' cannot co-exist w/ any except 'Activation' or 'Repression
+        if ModelSpec.Linear in modelSpecs:
+            if len(modelSpecs) > 2:
+                raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "Linear" cannot co-exist with any other keywords other than "Repression" or "Activation')
+            elif len(modelSpecs) == 2:
+                tmpModelSpecs = list(modelSpecs).remove(ModelSpec.Linear)
+                if not (tmpModelSpecs[0] == ModelSpec.Activation or\
+                        tmpModelSpecs[0] == ModelSpec.Repression):
+                    raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "Linear" cannot co-exist with any other keywords other than "Repression" or "Activation')
+
+        # "Activation" cannot co-exist w/ "Repression"
+        if ModelSpec.Activation in modelSpecs and ModelSpec.Repression in modelSpecs :
+            raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "Activation" and "Repression" cannot coexist')
+        if ModelSpec.Inducer_Activation in modelSpecs and ModelSpec.Inducer_Repression in modelSpecs:
+            raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "Inducer_Activation" and "Inducer_Repression" cannot coexist')
+        
+        # "Michaelis_Menten" cannot co-exist w/ "Quadratic" or "Hill", though "Hill" does not specify Hill coefficient
+        if int(ModelSpec.Michaelis_Menten in modelSpecs or ModelSpec.M_M in modelSpecs) + \
+                int(ModelSpec.Quadratic in modelSpecs or ModelSpec.Dimerized in modelSpecs) + int(ModelSpec.Hill in modelSpecs) >= 2 :
+            raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "Michaelis_Menten" (or "M_M"), "Quadratic" (or "Dimerized"), or "Hill" cannot coexist')
+        if ModelSpec.Inducer_Michaelis_Menten in modelSpecs and ModelSpec.Inducer_Quadratic in modelSpecs:
+            # Inducer "Hill coefficient" is constrained to 1 or 2
+            raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "Inducer_Michaelis_Menten" and "Inducer_Quadratic" cannot coexist')
+
+        # "Basal_expression" cannot co-exit w/ "No_basal_expression"
+        if ModelSpec.Basal_expression in modelSpecs and ModelSpec.No_basal_expression in modelSpecs :
+            raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "Basal_expression" and "No_basal_expression" cannot coexist')
+
+        # "Inducer_+" keyword depends on "Inducer"
+        for keyword in (ModelSpec.Inducer_Activation, ModelSpec.Inducer_Repression, ModelSpec.Inducer_Michaelis_Menten, ModelSpec.Inducer_Quadratic):
+            if keyword in modelSpecs and ModelSpec.Inducer not in modelSpecs:
+                raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "%s" depends on keyword "Inducer"'%keyword.name)
 
 # The func gives the common sets of mechanistic models
 # Each model is a pair of (modelType, ModelSpecs)

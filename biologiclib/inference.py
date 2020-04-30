@@ -17,6 +17,7 @@ from scipy.optimize import minimize, differential_evolution
 from functools import reduce
 from biologiclib import ioUtils, modelBase, plotUtils
 from biologiclib.modelBase import ModelType, ModelSpec, ModelSet
+from biologiclib.modelBase import jacBase
 from sympy import symbols, lambdify, diff, pretty
 import multiprocessing as mp
 
@@ -81,7 +82,11 @@ def genJac(inducer, reporter, reporterStd, expression, thetaList):
     # Original function lambdify
     PstFunc = lambdify((symbols('A'), thetaSymbols), expression, "numpy")
     # Symbolic derivitives
-    jacExp = [diff(expression, x) for x in thetaSymbols]
+    key = str(expression)
+    if key in jacBase:
+        jacExp = jacBase[key]    # shortcut if initialized
+    else:
+        jacExp = [diff(expression, x) for x in thetaSymbols]
     # Derivitives lambdify
     jacFunc = [lambdify((symbols('A'), thetaSymbols), exp, "numpy") for exp in jacExp]
 
@@ -183,7 +188,10 @@ def __fitModel(modelType, modelSpecs,
     # Get SSE
     sse = genSSE(inducer, reporter, reporterStd, model, thetaList)
     # Also get jacobian of SSE
-    jacobian = genJac(inducer, reporter, reporterStd, exp, thetaList)
+    if modelSolver == ModelSolver.Nelder_Mead or modelSolver == ModelSolver.N_M:
+        jacobian = None
+    else:
+        jacobian = genJac(inducer, reporter, reporterStd, exp, thetaList)
 
     # Is this repression or activation model?
     repression = False
