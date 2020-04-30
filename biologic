@@ -88,7 +88,7 @@ def main():
                 inducerTags, replicateTags, reporterTag,
                 modelSolver, modelSet, modelCriterion,
                 inducerUnits, reporterUnits, figurePath,
-                quiet = False)
+                quiet = False, parallel = True)
         print("Total Run Time:", time.time() - startTime)    # Note this includes plotting elapse
 
         # print model selection

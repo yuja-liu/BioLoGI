@@ -71,8 +71,8 @@ def genJac(inducer, reporter, reporterStd, expression, thetaList):
 
     # Check parameter dimensions
     try:
-        if len(inducer) != len(reporter) or len(inducer) != len(reporterStd):
-            raise Exception("Usage: genJac(inducer, reporter, reporterStd, expression, thetaList), where inducer, reporter, and reporterStd should be of the same dimension. However, inducer(%d), reporter(%d), and reporterStd(%d)"%(len(inducer), len(reporter), len(reporterStd)))
+        if len(inducer) != len(reporter):
+            raise Exception("Usage: genJac(inducer, reporter, reporterStd, expression, thetaList), where inducer and reporter should be of the same dimension. However, inducer(%d) and reporter(%d)"%(len(inducer), len(reporter)))
     except TypeError:
         raise Exception("Usage: genJac(inducer, reporter, reporterStd, expression, thetaList), where inducer, reporter, and reporterStd should be iterable")
 
@@ -164,20 +164,26 @@ def infoCriteria(sse, theta, reporter, method = ModelCriterion.AIC):
 gInducer, gReporter, gReporterStd = [], [], []
 gModelSolver, gModelCrterion = None, None
 
-def __fitModel(modelKeys):
+def __fitModelWrapper(paras):
+    '''
+    Split parameters for __fitModel()
+    '''
+    return __fitModel(*paras)
+
+def __fitModel(modelType, modelSpecs,
+                inducer, reporter, reporterStd,
+                modelSolver = ModelSolver["Nelder_Mead"], modelCriterion = ModelCriterion["AIC"]):
     '''
     Paralleled version of model fitting
     '''
-
-    modelType, modelSpecs = modelKeys
 
     # Generate the model
     exp, model, constraints, thetaList = modelBase.genModel(modelType, modelSpecs, plain_print=False)
 
     # Get SSE
-    sse = genSSE(gInducer, gReporter, gReporterStd, model, thetaList)
+    sse = genSSE(inducer, reporter, reporterStd, model, thetaList)
     # Also get jacobian of SSE
-    jacobian = genJac(gInducer, gReporter, gReporterStd, exp, thetaList)
+    jacobian = genJac(inducer, reporter, reporterStd, exp, thetaList)
 
     # Is this repression or activation model?
     repression = False
@@ -189,13 +195,13 @@ def __fitModel(modelKeys):
     # Parameterization
     startTime = time.time()
     inferredTheta, residue = estimatePara(
-            sse, modelBase.defaultPara(thetaList, gInducer, gReporter, repression = repression),
-            jacobian, constraints, method = gModelSolver
+            sse, modelBase.defaultPara(thetaList, inducer, reporter, repression = repression),
+            jacobian, constraints, method = modelSolver
     )
     duration = time.time() - startTime
 
     # Calculate Infomation Criteria
-    IC = infoCriteria(residue, inferredTheta, gReporter, gModelCriterion)
+    IC = infoCriteria(residue, inferredTheta, reporter, modelCriterion)
 
     # Compose model meta
     meta = Solution(
@@ -210,43 +216,61 @@ def selectModel(inducer, reporter, reporterStd,
         inducerTags, replicateTags, reporterTag,
         modelSolver = ModelSolver.N_M, modelSet = ModelSet.Simple_Inducible_Promoter, modelCriterion = ModelCriterion.AIC,
         inducerUnits = "M", reporterUnits = "M",
-        figPath = None, quiet=True, plot = True):
+        figPath = None, quiet=True, plot = True,
+        parallel = True):
     '''
     Select the best model interpreting given inducer/reporter characterization data.
     Notice that fitting of alternative models is paralled. Thus, selectModel() cannot be run multiprocessed!
     '''
 
-    global gInducer, gReporter, gReporterStd, gModelSolver, gModelCriterion
-    gInducer, gReporter, gReporterStd = inducer, reporter, reporterStd
-    gModelSolver, gModelCriterion = modelSolver, modelCriterion
-
     # Generate model candicates (alternative mechanistic hypotheses)
     modelSet = modelBase.genModelSet(modelSet)
 
-    # parallel model fitting
     metas = []
     minIC = float("inf")
     count = 0    # number of model being solved
 
-    cpuCount = int(mp.cpu_count())    # Num of cpu cores
-    pool = mp.Pool(cpuCount)    # A pool of processes
-    for meta, duration in pool.imap_unordered(__fitModel, modelSet):
-        count += 1
-        metas.append(meta)
+    if parallel:
+        # parallel model fitting
+        cpuCount = int(mp.cpu_count())    # Num of cpu cores
+        pool = mp.Pool(cpuCount)    # A pool of processes
 
-        # Print model info
-        if not quiet:
-            print("========================================")
-            print("# %d Model"%count)
-            printModel(meta)
-            print("Time elapsed:%.2f\n"%duration)
+        for meta, duration in pool.imap_unordered(__fitModelWrapper,
+                                                [(*mk, inducer, reporter, None, modelSolver, modelCriterion) for mk in modelSet]):
+            count += 1
+            metas.append(meta)
 
-        # Best model
-        if meta.IC < minIC:
-            minIC = meta.IC
-            bestModelMeta = meta
-    pool.close()
-    pool.join()
+            # Print model info
+            if not quiet:
+                print("========================================")
+                print("# %d Model"%count)
+                printModel(meta)
+                print("Time elapsed:%.2f\n"%duration)
+
+            # Best model
+            if meta.IC < minIC:
+                minIC = meta.IC
+                bestModelMeta = meta
+        pool.close()
+        pool.join()
+
+    else:
+        for mk in modelSet:
+            meta, duration = __fitModel(*mk, inducer, reporter, None, modelSolver, modelCriterion)
+            count += 1
+            metas.append(meta)
+
+            # Print model info
+            if not quiet:
+                print("========================================")
+                print("# %d Model"%count)
+                printModel(meta)
+                print("Time elapsed:%.2f\n"%duration)
+
+            # Best model
+            if meta.IC < minIC:
+                minIC = meta.IC
+                bestModelMeta = meta
 
     # Plotting
     thetaDict = {key: val for key, val in zip(bestModelMeta.thetaKey, bestModelMeta.thetaVal)}
@@ -258,7 +282,6 @@ def selectModel(inducer, reporter, reporterStd,
     return bestModelMeta, metas
 
 def printModel(meta):
-    print('=============================================')
     print('%s\nType = %s'%(meta.expression, meta.modelType.name))
     print('Specs = ' + ', '.join([spec.name for spec in meta.modelSpecs]))
     print('Parameters:\n' +\
