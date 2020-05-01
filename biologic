@@ -84,7 +84,7 @@ def main():
         inducer, reporter, reporterStd = ioUtils.readInput(filePath, inducerTags, replicateTags, reporterTag)
 
         startTime = time.time()
-        modelBase.initializeModelBase()
+        #modelBase.initializeModelBase()
         bestModel, _ = inference.selectModel(inducer, reporter, reporterStd,
                 inducerTags, replicateTags, reporterTag,
                 modelSolver, modelSet, modelCriterion,

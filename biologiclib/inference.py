@@ -90,22 +90,30 @@ def genJac(inducer, reporter, reporterStd, expression, thetaList):
     # Derivitives lambdify
     jacFunc = [lambdify((symbols('A'), thetaSymbols), exp, "numpy") for exp in jacExp]
 
+    # Avoid 0 in log
+    inducerSize = len(inducer)
+    inducer = np.array(inducer)
+    inducer = inducer.reshape(inducerSize, -1)    # convert 1D vector to 2D
+    flatInducer = inducer.reshape(1, -1)
+    mval = float('inf')
+    for x in flatInducer[0]:
+        if abs(x) > 1E-128 and abs(x) < mval:
+            mval = abs(x)
+    row, col = inducer.shape
+    for i in range(row):
+        for j in range(col):
+            if abs(inducer[i][j]) <= 1E-128:
+                inducer[i][j] = mval / 1E2
+
     # Construct the function
     def jacobian(theta):
         jac = []
         for i in range(len(thetaList)):
             # derivitive of sse is a linear combinition
-            try:
-                len(inducer[0])    # empty imput is not allowed
-                dSSE = 2 * sum(
-                    [(PstFunc(A[0], theta) - x) * jacFunc[i](A[0], theta)\
-                        for A, x in zip(inducer, reporter)]
-                )
-            except TypeError:
-                dSSE = 2 * sum(
-                    [(PstFunc(A, theta) - x) * jacFunc[i](A, theta)\
-                        for A, x in zip(inducer, reporter)]
-                )
+            dSSE = 2 * sum(
+                [(PstFunc(A[0], theta) - x) * jacFunc[i](A[0], theta)\
+                    for A, x in zip(inducer, reporter)]
+            )
             jac.append(dSSE)
         return np.array(jac)    # Some scipy optimization funcs, e.g. BFGS, insist on using np.array jacobian
 
@@ -122,7 +130,7 @@ def estimatePara(sse, X0, jacobian = None, constraints = None, bounds = None, me
 
     # Always first use Nelder_Mead to estimate initial theta
     NMres = minimize(sse, X0, method = "Nelder-Mead", options = {
-        "maxiter": 20,
+        "maxiter": 40,
         "disp": False
     })
     newX0 = NMres.x
@@ -138,15 +146,15 @@ def estimatePara(sse, X0, jacobian = None, constraints = None, bounds = None, me
         })
     elif method == ModelSolver.BFGS:
         res = minimize(sse, newX0, jac = jacobian, method = "BFGS", options = {
-            "maxiter": 50,
-            "gtol": 1E-4,
+            "maxiter": 30,
+            "gtol": 1E-3,
             "disp": False
         })
     elif method == ModelSolver.SLSQP:
         try:
             res = minimize(sse, newX0, constraints = constraints, jac = jacobian, method = "SLSQP", options = {
-                "maxiter": 50,
-                "ftol": 1E-2,    # to avoid "ComplexInfinity" error
+                "maxiter": 20,
+                "ftol": 1E-3,    # to avoid "ComplexInfinity" error
                 "disp": False
             })
         except ValueError:    # hack to continue
