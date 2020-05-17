@@ -60,7 +60,7 @@ def genSSE(inducer, reporter, reporterStd, model, thetaList):
         mu = model(np.array(inducer), theta)
         sse = sum([(m - x) ** 2 for m, x in zip(mu, reporter)])
 
-        return sse
+        return np.float32(sse)
 
     return SSE
 
@@ -145,7 +145,7 @@ def estimatePara(sse, X0, jacobian = None, constraints = None, bounds = None, me
             "disp": False
         })
     elif method == ModelSolver.BFGS:
-        res = minimize(sse, newX0, jac = jacobian, method = "BFGS", options = {
+        res = minimize(sse, np.array(newX0), jac = jacobian, method = "BFGS", options = {
             "maxiter": 30,
             "gtol": 1E-3,
             "disp": False
