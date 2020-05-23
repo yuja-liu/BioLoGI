@@ -191,7 +191,7 @@ def genEquation(modelType, modelSpecs = ()):
     elif modelType == ModelType.Duo_Input_Node:
         # The general 2-input model
         A_1, A_2, K_1, K_2, n_1, n_2, alpha_1, alpha_2, alpha_3, alpha_4 = \
-                symbols('A_1 A_2 K_1 K_2 n_1 n_2 alpha_1 alph_2 alpha_3 alpha_4')
+                symbols('A_1 A_2 K_1 K_2 n_1 n_2 alpha_1 alpha_2 alpha_3 alpha_4')
         P_st = (alpha_1 * (A_1/K_1) ** n_1 * (A_2/K_2) ** n_2 + alpha_2 * (A_1/K_1) ** n_1 + alpha_3 * (A_2/K_2) ** n_2 + alpha_4) /\
                 ((A_1/K_1) ** n_1 * (A_2/K_2) ** n_2 + (A_1/K_1) ** n_1 + (A_2/K_2) ** n_2 + 1)
         thetaKeys = ['K_1', 'K_2', 'n_1', 'n_2', 'alpha_1', 'alpha_2', 'alpha_3', 'alpha_4']
