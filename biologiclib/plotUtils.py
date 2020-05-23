@@ -47,7 +47,7 @@ def plotModel2D(X, mu, std, theta, model, inputTag = "Inducer", outputTag = "FP"
     plotRange = np.exp(np.arange(*plotBounds, 1E-2))
     if lower < 1E-12:    # give back the 0 at front
         plotRange = np.insert(plotRange, 0, 0.0)
-    Y = model(plotRange, theta)
+    Y = model(plotRange.reshape(-1, 1), theta)
 
     fig, ax = plt.subplots(figsize=(8, 6))
     #ax.plot(X1D, mu, color="blue", marker='^', linestyle=None)

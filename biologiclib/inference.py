@@ -151,15 +151,11 @@ def estimatePara(sse, X0, jacobian = None, constraints = None, bounds = None, me
             "disp": False
         })
     elif method == ModelSolver.SLSQP:
-        try:
-            res = minimize(sse, newX0, constraints = constraints, jac = jacobian, method = "SLSQP", options = {
-                "maxiter": 20,
-                "ftol": 1E-3,    # to avoid "ComplexInfinity" error
-                "disp": False
-            })
-        except ValueError:    # hack to continue
-            warnings.warn("Algorithm overflow. This model renders no feasible solutions")
-            return X0, 1E10
+        res = minimize(sse, newX0, constraints = constraints, jac = jacobian, method = "SLSQP", options = {
+            "maxiter": 50,
+            "ftol": 1E-3,    # to avoid "ComplexInfinity" error
+            "disp": False
+        })
 
     # Return
     return res.x, res.fun

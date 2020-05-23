@@ -19,5 +19,9 @@
 
 # Stage2: omics analysis and beyond
 
-1. Localize the scripts, change that into all-to-all manner.
-2. What are informative figures?
+~~1. Localize the scripts, change that into all-to-all manner.~~
+~~2. What are informative figures?~~
+~~3. Union of top genes of all tissues. This would ameliorate tissue bias~~
+4. Heat map to show the distribution of top genes among tissues (high truncate)
+~~5. summarize the enrichment table~~
+6. case study of significant genes
