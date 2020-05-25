@@ -9,7 +9,7 @@ modelBase.py is the knowledgebase of bio-models. It includes specifications/defi
 '''
 
 from enum import Enum
-from sympy import symbols, lambdify, pretty, diff
+from sympy import symbols, lambdify, pretty, diff, Mul
 import warnings
 import numpy as np
 
@@ -67,9 +67,9 @@ def initializeModelBase():
         jac = [diff(eqn, x) for x in thetaKeys]
         jacBase[str(eqn)] = jac
 
-def genEquation(modelType, modelSpecs = ()):
+def genEquation(modelType, modelSpecs=()):
     '''
-    genEquation(modelType, modelSpecs = ())
+    (equation_func, equation_str), theta_keys, constraints = genEquation(model_type, model_specifications=())
     
     Generate the mathematical expression of the model corresponding to given model-type and model-specifications.
     Other functions, e.g. genModel() wraps the equation and equips it with a parameter handler
@@ -92,10 +92,10 @@ def genEquation(modelType, modelSpecs = ()):
     # Generate model (and corresponding theta list & constraints)
     # Constitutive expression
     if modelType == ModelType.Constant:
-        alpha = symbols('alpha')
+        alpha, A = symbols('alpha A')
         # for each model, we define P_st (steady-state protein level), thetaKeys (the name of theta),
         # and constraints (equity and inequity)
-        P_st = alpha
+        P_st = alpha + Mul(A, 0, evaluate=False)    # A hack to preserve the dimension if input is a vector
         thetaKeys = ['alpha']
         constraint = {
             "type": "ineq",
@@ -280,9 +280,32 @@ def genEquation(modelType, modelSpecs = ()):
                 }
                 constraints.append(constraint)
 
-    return P_st, thetaKeys, constraints
+    eqnFunc, eqnStr = __lambdifyEqn(P_st, thetaKeys, modelType)
+    return (eqnFunc, eqnStr, P_st), thetaKeys, constraints
 
-def genModel(modelType, modelSpecs = (), plain_print=True) :
+def __lambdifyEqn(eqn, thetaKeys, modelType):
+    '''
+    Lambdify symbolic expression of model. ModelType is required to determine the dimension of inputs
+    '''
+
+    # Pretty print expressions
+    eqnStr = pretty(eqn, use_unicode=False)
+
+    # lambdify equaition
+    A, A_1, A_2 = symbols('A A_1 A_2')
+    if modelType == ModelType.Constant or\
+            modelType == ModelType.Inducible or modelType == ModelType.Single_Input_Node:
+        eqnFunc = lambdify((A, symbols(thetaKeys)), eqn, 'numpy')
+    elif modelType == ModelType.Duo_Input_Node:
+        eqnFunc = lambdify(((A_1, A_2), symbols(thetaKeys)), eqn, 'numpy')
+    
+    return eqnFunc, eqnStr
+
+def genModel(modelType, modelSpecs = ()) :
+    '''
+    model, constraints, thetaKeys, eqnStr, eqnSym = genModel(modelType, modelSpecs)
+    '''
+
     # Check variable types. modelType: enum, modelSpecs: list/tuple
     if type(modelSpecs) != list and type(modelSpecs) != tuple :
         raise Exception('Usage: genModel(modelType, modelSpecs), modelSpecs should be either list or tuple')
@@ -296,23 +319,12 @@ def genModel(modelType, modelSpecs = (), plain_print=True) :
     __modelSpecsInspector(modelType, modelSpecs)
 
     # Generate the mathematical expression of models
-    eqn, thetaKeys, constraints = genEquation(modelType, modelSpecs)
-
-    # Pretty print expressions
-    returnExp = pretty(eqn, use_unicode=False) if plain_print else eqn
-
-    # lambdify equaition
-    if modelType == ModelType.Constant:
-        modelFunc = lambdify(symbols(thetaKeys), eqn)
-    elif modelType == ModelType.Inducible or modelType == ModelType.Single_Input_Node:
-        modelFunc = lambdify((symbols('A'), symbols(thetaKeys)), eqn, 'numpy')
-    elif modelType == ModelType.Duo_Input_Node:
-        modelFunc = lambdify((symbols('A_1 A_2'), symbols(thetaKeys)), eqn, 'numpy')
+    (eqnFunc, eqnStr, eqnSym), thetaKeys, constraints = genEquation(modelType, modelSpecs)
 
     # Parameter injection
-    model = __modelParaInterpreter(modelType, modelFunc, thetaKeys)
+    model = __modelParaInterpreter(modelType, eqnFunc, thetaKeys)
 
-    return returnExp, model, constraints, thetaKeys
+    return model, constraints, thetaKeys, eqnStr, eqnSym
 
 # Generate default parameters: useful for initials
 def defaultPara(thetaList, inducer, reporter, repression = False):
@@ -373,14 +385,10 @@ def __modelParaInterpreter(modelType, modelFunc, thetaKeys):
         __supplementPara(theta, thetaKeys)
         serializedTheta = [theta[key] for key in thetaKeys]
 
-        if modelType == ModelType.Constant:
-            reporter = np.array([modelFunc(*serializedTheta)] * len(X), dtype='float64')
-        else:
-            # convert input to np array
-            X = np.array(X, dtype='float64')
-            reporter = np.array([modelFunc(A, serializedTheta) for A in X])
+        X = np.array(X, dtype='float64')    # convert input to np array
+        reporter = np.array([modelFunc(A, serializedTheta) for A in X])
 
-        return np.squeeze(reporter)
+        return np.squeeze(reporter)    # eliminate unwanted dimensions
 
     return model
 

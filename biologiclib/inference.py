@@ -146,8 +146,8 @@ def estimatePara(sse, X0, jacobian = None, constraints = None, bounds = None, me
         })
     elif method == ModelSolver.BFGS:
         res = minimize(sse, newX0, jac = jacobian, method = "BFGS", options = {
-            "maxiter": 30,
-            "gtol": 1E-3,
+            "maxiter": 100,
+            "gtol": 1E-4,
             "disp": False
         })
     elif method == ModelSolver.SLSQP:
@@ -187,7 +187,7 @@ def __fitModel(modelType, modelSpecs,
     '''
 
     # Generate the model
-    exp, model, constraints, thetaList = modelBase.genModel(modelType, modelSpecs, plain_print=False)
+    model, constraints, thetaList, eqnStr, eqnSym = modelBase.genModel(modelType, modelSpecs)
 
     # Get SSE
     sse = genSSE(inducer, reporter, reporterStd, model, thetaList)
@@ -195,7 +195,7 @@ def __fitModel(modelType, modelSpecs,
     if modelSolver == ModelSolver.Nelder_Mead or modelSolver == ModelSolver.N_M:
         jacobian = None
     else:
-        jacobian = genJac(inducer, reporter, reporterStd, exp, thetaList)
+        jacobian = genJac(inducer, reporter, reporterStd, eqnSym, thetaList)
 
     # Is this repression or activation model?
     repression = False
@@ -218,7 +218,7 @@ def __fitModel(modelType, modelSpecs,
     # Compose model meta
     meta = Solution(
             modelType, modelSpecs,
-            pretty(exp, use_unicode=False),
+            pretty(eqnStr, use_unicode=False),
             thetaList, inferredTheta,
             residue, IC)
 
@@ -286,7 +286,7 @@ def selectModel(inducer, reporter, reporterStd,
 
     # Plotting
     thetaDict = {key: val for key, val in zip(bestModelMeta.thetaKey, bestModelMeta.thetaVal)}
-    _, bestModel, _, _ = modelBase.genModel(bestModelMeta.modelType, bestModelMeta.modelSpecs)
+    bestModel, _, _, _, _ = modelBase.genModel(bestModelMeta.modelType, bestModelMeta.modelSpecs)
     if plot:
         plotUtils.plotModel2D(inducer, reporter, reporterStd, thetaDict, bestModel,
                 inducerTags[0], reporterTag, inducerUnits, reporterUnits, figPath)
