@@ -49,23 +49,23 @@ def isCV(cv) :
     print(__findCV(cv) is not None)
 
 # Store model equations and jacobians to boost the process
-eqnBase = {}
-jacBase = {}
+#eqnBase = {}
+#jacBase = {}
 
-def initializeModelBase():
-    '''
-    initializeModelBase() constructs all functional models in the model-base,
-    specifically, those used in genModel() and genJacobian().
-    When fitting models in large scale, call this function first to accelerate the process.
-    '''
-    
-    modelSetAll = genModelSet(ModelSet["All"])
-    for modelType, modelSpecs in modelSetAll:
-        eqn, thetaKeys, _ = genEquation(modelType, modelSpecs)
-        key = (modelType, frozenset(modelSpecs))
-        eqnBase[key] = eqn
-        jac = [diff(eqn, x) for x in thetaKeys]
-        jacBase[str(eqn)] = jac
+#def initializeModelBase():
+#    '''
+#    initializeModelBase() constructs all functional models in the model-base,
+#    specifically, those used in genModel() and genJacobian().
+#    When fitting models in large scale, call this function first to accelerate the process.
+#    '''
+#    
+#    modelSetAll = genModelSet(ModelSet["All"])
+#    for modelType, modelSpecs in modelSetAll:
+#        eqn, thetaKeys, _ = genEquation(modelType, modelSpecs)
+#        key = (modelType, frozenset(modelSpecs))
+#        eqnBase[key] = eqn
+#        jac = [diff(eqn, x) for x in thetaKeys]
+#        jacBase[str(eqn)] = jac
 
 def genEquation(modelType, modelSpecs=()):
     '''
@@ -78,9 +78,9 @@ def genEquation(modelType, modelSpecs=()):
     # TODO: Parameter type inspection
 
     # Shortcut model equation if is initialized
-    key = (modelType, frozenset(modelSpecs))
-    if key in eqnBase:
-        return eqnBase[key]
+    #key = (modelType, frozenset(modelSpecs))
+    #if key in eqnBase:
+    #    return eqnBase[key]
     
     # Mathematical expression
     P_st = None

@@ -17,7 +17,7 @@ from scipy.optimize import minimize, differential_evolution
 from functools import reduce
 from biologiclib import ioUtils, modelBase, plotUtils
 from biologiclib.modelBase import ModelType, ModelSpec, ModelSet
-from biologiclib.modelBase import jacBase
+#from biologiclib.modelBase import jacBase
 from sympy import symbols, lambdify, diff, pretty
 import multiprocessing as mp
 
@@ -83,10 +83,9 @@ def genJac(inducer, reporter, reporterStd, expression, thetaList):
     PstFunc = lambdify((symbols('A'), thetaSymbols), expression, "numpy")
     # Symbolic derivitives
     key = str(expression)
-    if key in jacBase:
-        jacExp = jacBase[key]    # shortcut if initialized
-    else:
-        jacExp = [diff(expression, x) for x in thetaSymbols]
+    #if key in jacBase:
+    #    jacExp = jacBase[key]    # shortcut if initialized
+    jacExp = [diff(expression, x) for x in thetaSymbols]
     # Derivitives lambdify
     jacFunc = [lambdify((symbols('A'), thetaSymbols), exp, "numpy") for exp in jacExp]
 
