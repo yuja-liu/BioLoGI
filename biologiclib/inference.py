@@ -20,9 +20,13 @@ from biologiclib.modelBase import ModelType, ModelSpec, ModelSet
 #from biologiclib.modelBase import jacBase
 from sympy import symbols, lambdify, diff, pretty
 import multiprocessing as mp
+import pymc3 as pm
+import logging
+logger = logging.getLogger("pymc3")
+logger.setLevel(logging.ERROR)    # hack to hide NUTS initiation message
 
 # ModelSolver defines the possible procedures to estimate the parameters of a single mechanistic model
-ModelSolver = Enum("ModelSolver", ("Nelder_Mead", "N_M", "BFGS", "COBYLA", "SLSQP"))
+ModelSolver = Enum("ModelSolver", ("Nelder_Mead", "N_M", "BFGS", "COBYLA", "SLSQP", "MCMC"))
 
 # ModelCriterion defines the standard to evaluate a given model{expression and the parameters}, basically Infromation Criteria
 ModelCriterion = Enum("ModelCriterion", ("AIC"))
@@ -32,12 +36,13 @@ class Solution:
     To Store the metadata of a modol solution
     '''
 
-    def __init__(self, modelType, modelSpecs, expression, thetaKey, thetaVal, residue, IC):
+    def __init__(self, modelType, modelSpecs, expression, thetaKey, thetaVal, residue, IC, thetaStd=None):
         self.modelType = modelType
         self.modelSpecs = modelSpecs
         self.expression = expression
         self.thetaKey = thetaKey
         self.thetaVal = thetaVal
+        self.thetaStd = thetaStd
         self.residue = residue
         self.IC = IC
 
@@ -119,36 +124,40 @@ def genJac(inducer, reporter, reporterStd, expression, thetaList):
     # Return
     return jacobian
 
-def estimatePara(sse, X0, jacobian = None, constraints = None, bounds = None, method = ModelSolver.Nelder_Mead):
+def estimatePara(sse, X0, jacobian = None, constraints = None, method = ModelSolver.Nelder_Mead):
     # Check input
     if type(method) != ModelSolver:
         raise Exception('Usage: paraEstimator(sse, X0, method), where method should be ModelSolver type Enum.')
 
-    # Tentatively add bounds to ensure non-negative solutions
-    bounds = [(0, x * 10) for x in X0]
-
     # Always first use Nelder_Mead to estimate initial theta
     NMres = minimize(sse, X0, method = "Nelder-Mead", options = {
-        "maxiter": 40,
+        "maxiter": 50,
         "disp": False
     })
     newX0 = NMres.x
 
     # Alternative solvers
+    # Nelder_Mead only
     if method == ModelSolver.Nelder_Mead or method == ModelSolver.N_M:
         res = NMres
+
+    # COBYLA
     elif method == ModelSolver.COBYLA:
         res = minimize(sse, newX0, constraints = constraints, method = "COBYLA", options = {
             "tol": 1E-4,
             "maxiter": 50,
             "disp": False
         })
+
+    # BFGS is a Quasi-Newton method, fast and rather accurate
     elif method == ModelSolver.BFGS:
         res = minimize(sse, newX0, jac = jacobian, method = "BFGS", options = {
             "maxiter": 100,
             "gtol": 1E-4,
             "disp": False
         })
+
+    # SLSQP accepts constraints
     elif method == ModelSolver.SLSQP:
         res = minimize(sse, newX0, constraints = constraints, jac = jacobian, method = "SLSQP", options = {
             "maxiter": 50,
@@ -159,6 +168,34 @@ def estimatePara(sse, X0, jacobian = None, constraints = None, bounds = None, me
     # Return
     return res.x, res.fun
 
+def paraPosterior(inducer, reporter, dp, thetaKeys, eqnFunc):
+    bayesianModel = pm.Model()
+    with bayesianModel:
+        thetaR = []
+        for para0, key in zip(dp, thetaKeys):
+            paraR = pm.Uniform(key, lower=0, upper=2*abs(para0))
+            thetaR.append(paraR)
+        # The expected value for reporter
+        mu = eqnFunc(np.squeeze(np.array(inducer)), thetaR)
+        sigma = pm.HalfNormal('sigma', 1)
+        g = sigma * (mu**2 + 1)
+        # TODO: duo-input
+        # observed reporter
+        obsReporter = pm.Normal('obsReporter', mu=mu, sigma=g, observed=reporter)
+        # MAP
+        #mapFit = pm.find_MAP(model=bayesianModel)
+        # Sampling
+        trace = pm.sample(draws=5000, tune=2000, cores=2, target_accept=0.95)
+        # parameter means
+        summary = pm.summary(trace)
+        inferredTheta = [summary.loc[key, 'mean'] for key in thetaKeys]
+        # parameter stdev
+        thetaStd = [summary.loc[key, 'sd'] for key in thetaKeys]
+        # residue
+        reporterHat = np.squeeze(eqnFunc(np.array(inducer), inferredTheta))
+        residue = sum((yHat - y)**2 for yHat, y in zip(reporterHat, reporter))
+    return inferredTheta, thetaStd, residue, trace
+
 def infoCriteria(sse, theta, reporter, method = ModelCriterion.AIC):
     if method == ModelCriterion.AIC:
         k, n = len(theta), len(reporter)
@@ -168,9 +205,6 @@ def infoCriteria(sse, theta, reporter, method = ModelCriterion.AIC):
         return AIC
     else:
         return sse
-
-gInducer, gReporter, gReporterStd = [], [], []
-gModelSolver, gModelCrterion = None, None
 
 def __fitModelWrapper(paras):
     '''
@@ -185,17 +219,6 @@ def __fitModel(modelType, modelSpecs,
     Paralleled version of model fitting
     '''
 
-    # Generate the model
-    model, constraints, thetaList, eqnStr, eqnSym = modelBase.genModel(modelType, modelSpecs)
-
-    # Get SSE
-    sse = genSSE(inducer, reporter, reporterStd, model, thetaList)
-    # Also get jacobian of SSE
-    if modelSolver == ModelSolver.Nelder_Mead or modelSolver == ModelSolver.N_M:
-        jacobian = None
-    else:
-        jacobian = genJac(inducer, reporter, reporterStd, eqnSym, thetaList)
-
     # Is this repression or activation model?
     repression = False
     if ModelSpec.Repression in modelSpecs and ModelSpec.Inducer_Repression not in modelSpecs:
@@ -203,12 +226,43 @@ def __fitModel(modelType, modelSpecs,
     elif ModelSpec.Repression not in modelSpecs and ModelSpec.Inducer_Repression in modelSpecs:
         repression = True
 
-    # Parameterization
     startTime = time.time()
-    inferredTheta, residue = estimatePara(
-            sse, modelBase.defaultPara(thetaList, inducer, reporter, repression = repression),
-            jacobian, constraints, method = modelSolver
-    )
+    if modelSolver != ModelSolver.MCMC:
+        # Generate the model
+        (model, eqnStr, eqnSym), thetaList, constraints = modelBase.genModel(modelType, modelSpecs)
+
+        # Get SSE
+        sse = genSSE(inducer, reporter, reporterStd, model, thetaList)
+        # Also get jacobian of SSE
+        if modelSolver == ModelSolver.Nelder_Mead or modelSolver == ModelSolver.N_M:
+            jacobian = None
+        else:
+            jacobian = genJac(inducer, reporter, reporterStd, eqnSym, thetaList)
+
+        # Generate default parameters
+        dp = modelBase.defaultPara(thetaList, inducer, reporter, repression = repression)
+        # Parameterization
+        inferredTheta, residue = estimatePara(
+                sse, dp, jacobian, constraints, method = modelSolver
+        )
+
+    # MCMC
+    else:
+        # TODO: the initial value is a bit messy
+        # generate sse for Nelder_Mead
+        (model, eqnStr, eqnSym), thetaList, constraints = modelBase.genModel(modelType, modelSpecs)
+        sse = genSSE(inducer, reporter, reporterStd, model, thetaList)
+        # default parameters
+        dp = modelBase.defaultPara(thetaList, inducer, reporter, repression = repression)
+        # better initial theta
+        NMres = minimize(sse, dp, method = "Nelder-Mead", options = {
+            "maxiter": 50,
+            "disp": False
+        })
+        newX0 = NMres.x
+        (eqnFunc, eqnStr, eqnSym), thetaList, constraints = modelBase.genEquation(modelType, modelSpecs)
+        inferredTheta, thetaStd, residue, trace = paraPosterior(inducer, reporter, newX0, thetaList, eqnFunc)
+
     duration = time.time() - startTime
 
     # Calculate Infomation Criteria
@@ -217,9 +271,13 @@ def __fitModel(modelType, modelSpecs,
     # Compose model meta
     meta = Solution(
             modelType, modelSpecs,
-            pretty(eqnStr, use_unicode=False),
+            eqnSym,
             thetaList, inferredTheta,
             residue, IC)
+    # if MCMC, also adds trace and thetaStd
+    if modelSolver == ModelSolver.MCMC:
+        meta.thetaStd = thetaStd
+        meta.trace = trace
 
     return meta, duration
 
@@ -241,7 +299,7 @@ def selectModel(inducer, reporter, reporterStd,
     minIC = float("inf")
     count = 0    # number of model being solved
 
-    if parallel:
+    if parallel and modelSolver != ModelSolver.MCMC:    # mcmc conflicts with parallel computation
         # parallel model fitting
         cpuCount = int(mp.cpu_count())    # Num of cpu cores
         pool = mp.Pool(cpuCount)    # A pool of processes
@@ -285,7 +343,9 @@ def selectModel(inducer, reporter, reporterStd,
 
     # Plotting
     thetaDict = {key: val for key, val in zip(bestModelMeta.thetaKey, bestModelMeta.thetaVal)}
-    bestModel, _, _, _, _ = modelBase.genModel(bestModelMeta.modelType, bestModelMeta.modelSpecs)
+    bestModel = modelBase.genModel(bestModelMeta.modelType, bestModelMeta.modelSpecs)[0][0]
+    if modelSolver == ModelSolver.MCMC:    # plot MCMC trace
+        pm.traceplot(bestModelMeta.trace)
     if plot:
         plotUtils.plotModel2D(inducer, reporter, reporterStd, thetaDict, bestModel,
                 inducerTags[0], reporterTag, inducerUnits, reporterUnits, figPath)
@@ -293,9 +353,13 @@ def selectModel(inducer, reporter, reporterStd,
     return bestModelMeta, metas
 
 def printModel(meta):
-    print('%s\nType = %s'%(meta.expression, meta.modelType.name))
+    print('%s\nType = %s'%(pretty(meta.expression, use_unicode=False), meta.modelType.name))
     print('Specs = ' + ', '.join([spec.name for spec in meta.modelSpecs]))
-    print('Parameters:\n' +\
-            ', '.join([key + ' = ' + str(val) for key, val in zip(meta.thetaKey, meta.thetaVal)]))
+    if meta.thetaStd != None:
+        print('Parameters:\n' +\
+                ', '.join(['%s = %.6f; std: %.6f'%(key, val, std) for key, val, std in zip(meta.thetaKey, meta.thetaVal, meta.thetaStd)]))
+    else:
+        print('Parameters:\n' +\
+                ', '.join(['%s = %.6f'%(key, val) for key, val in zip(meta.thetaKey, meta.thetaVal)]))
     print('Residue = %.4f\nIC = %.4f'%(meta.residue, meta.IC))
     stdout.flush()

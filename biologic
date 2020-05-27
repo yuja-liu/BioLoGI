@@ -10,10 +10,10 @@ Xi'an Jiaotong University, Biomedical Informatics & Genomics Center
 main.py is the entrance script. It handles the command line parameters, and returns the best model as well as its parameter(s).
 '''
 
-from biologiclib import ioUtils, inference, modelBase
+import sys, getopt
+from biologiclib import ioUtils, inference, modelBase, plotUtils
 from biologiclib.modelBase import ModelSet
 from biologiclib.inference import ModelSolver, ModelCriterion
-import sys, getopt
 import time
 
 helpInfo = '''
@@ -71,6 +71,7 @@ def main():
         inducerTags = config.get('input', {}).get('inducerTags', None)
         replicateTags = config.get('input', {}).get('replicateTags', None)
         reporterTag = config.get('input', {}).get('reporterTag', None)
+        chassisType = config.get('input', {}).get('chassisType', None)
         filePath = config.get('input', {}).get('file', None)
         modelSolver = ModelSolver[
                 config.get('solver', {}).get('paraEstimator', None)]
@@ -79,6 +80,8 @@ def main():
         modelSet = ModelSet[
                 config.get('solver', {}).get('modelSet', None)]
         figurePath = config.get('output', {}).get('figureFile', None)
+        sbmlPath = config.get('output', {}).get('sbmlFile', None)
+        sbolPath = config.get('output', {}).get('sbolFile', None)
 
         # inducer/reporter matrix from file
         inducer, reporter, reporterStd = ioUtils.readInput(filePath, inducerTags, replicateTags, reporterTag)
@@ -89,12 +92,39 @@ def main():
                 inducerTags, replicateTags, reporterTag,
                 modelSolver, modelSet, modelCriterion,
                 inducerUnits, reporterUnits, figurePath,
-                quiet = False, parallel = True)
+                quiet=False, parallel=True)
         print("Total Run Time:", time.time() - startTime)    # Note this includes plotting elapse
 
         # print model selection
+        print('========================================')
         print('Model Choice:')
         inference.printModel(bestModel)
+
+        # output to sbml
+        ioUtils.printSBML(
+                bestModel.modelType,
+                bestModel.expression,
+                {key: val for key, val in zip(bestModel.thetaKey, bestModel.thetaVal)},
+                inducerTags,
+                reporterTag,
+                inducerUnits,
+                reporterUnits,
+                sbmlPath,
+                chassisType=chassisType
+        )
+        print('========================================')
+        print('Successfully generated SBML')
+
+        # show as SBOL visuals
+        plotUtils.plotDNACircuit(
+                bestModel.modelType,
+                bestModel.modelSpecs,
+                inducerTags,
+                reporterTag,
+                sbolPath
+        )
+        print('========================================')
+        print('Successfully generated SBOL visuals')
 
 # command line entrance
 if __name__ == "__main__":

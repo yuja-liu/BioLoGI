@@ -8,8 +8,12 @@ Xi'an Jiaotong University, Biomedical Informatics & Genomics Center
 Ploting utilities
 '''
 
+import dnaplotlib as dpl
 from matplotlib import pyplot as plt
 import numpy as np
+from biologiclib.modelBase import ModelType, ModelSpec
+import matplotlib
+matplotlib.use('TkAgg')    # dnaplotlib changes the backend to 'Agg'
 
 def plotModel2D(X, mu, std, theta, model, inputTag = "Inducer", outputTag = "FP", inputUnits = "M", outputUnits = "AU", save_fig = None):
     # Check input
@@ -59,5 +63,103 @@ def plotModel2D(X, mu, std, theta, model, inputTag = "Inducer", outputTag = "FP"
     if save_fig is not None:
         # Then save as a file
         plt.savefig(save_fig, dpi=300, format="png")
+    else:
+        plt.show()
+
+def plotDNACircuit(modelType, modelSpecs, inducerTags, reporterTag, figPath=None):
+    '''
+    plotDNACircuit(modelType, modelSpecs, inducerTags, reporterTag, figPath=None)
+    Renders the inferred model of the biological node as genetic circuits.
+    The plot conforms SBOL visual standards
+    '''
+
+    # color scheme
+    palatte = ['#F79F1F', '#A3CB38', '#1289A7', '#D980FA', '#B53471']
+    np.random.shuffle(palatte)
+
+    # components
+    design = []
+    lw = 1.0
+    cur = 0
+    if modelType == ModelType.Inducible or modelType == ModelType.Single_Input_Node:
+        inPart = {'type': 'CDS', 'name': 'inPart', 'fwd': True,
+                'opts': {'linewidth': lw, 'color': palatte[cur], 'edge_color': 'black', 'x_extent': 24,
+                    'label': inducerTags[0], 'label_style': 'italic', 'label_color': 'black', 'label_size': 15,    # label_size controls font size
+                    'label_x_offset': -3, 'label_y_offset': 0
+                }
+        }
+        cur += 1
+        inPromoter = {'type': 'Promoter', 'name': 'pIn', 'fwd': True,
+                'opts': {'linewidth': lw, 'color': 'black', 'label': ''}}
+        design += [inPromoter, inPart]
+    elif modelType == ModelType.Duo_Input_Node:
+        inPart1 = {'type': 'CDS', 'name': 'inPart1', 'fwd': True,
+                'opts': {'linewidth': lw, 'color': palatte[cur], 'edge_color': 'black', 'x_extent': 24,
+                    'label': inducerTags[0], 'label_style': 'italic', 'label_color': 'black', 'label_size': 15,
+                    'label_x_offset': -3, 'label_y_offset': 0
+                }
+        }
+        cur += 1
+        inPromoter1 = {'type': 'Promoter', 'name': 'pIn1', 'fwd': True,
+                'opts': {'linewidth': lw, 'color': 'black', 'label': ''}}
+        inPart2 = {'type': 'CDS', 'name': 'inPart2', 'fwd': True,
+                'opts': {'linewidth': lw, 'color': palatte[cur], 'edge_color': 'black', 'x_extent': 24,
+                    'label': inducerTags[1], 'label_style': 'italic', 'label_color': 'black', 'label_size': 15,
+                    'label_x_offset': -3, 'label_y_offset': 0
+                }
+        }
+        cur += 1
+        inPromoter2 = {'type': 'Promoter', 'name': 'pIn2', 'fwd': True,
+                'opts': {'linewidth': lw, 'color': 'black', 'label': ''}}
+        design += [inPromoter1, inPart1, inPromoter2, inPart2]
+    outPart = {'type': 'CDS', 'name': 'outPart', 'fwd': True,
+            'opts': {'linewidth': lw, 'color': palatte[cur], 'edge_color': 'black', 'x_extent': 24,
+                'label': reporterTag, 'label_style': 'italic', 'label_color': 'black', 'label_size': 15,
+                'label_x_offset': -3, 'label_y_offset': 0
+            }
+    }
+    cur += 1
+    outPromoter = {'type': 'Promoter', 'name': 'pOut', 'fwd': True,
+            'opts': {'linewidth': lw, 'color': 'black', 'label': ''}}
+    design += [outPromoter, outPart]
+
+    # regulations
+    ac = 25    # arc height
+    if modelType == ModelType.Constant:
+        regs = []
+    elif modelType == ModelType.Inducible or modelType == ModeType.Single_Input_Node:
+        isActivated = ModelSpec.Activation in modelSpecs and ModelSpec.Inducer_Repression not in modelSpecs
+        reg = {'type': 'Activation' if isActivated else 'Repression', 'from_part': inPart, 'to_part': outPromoter,
+                'opts': {'color': 'black', 'linewidth': lw, 'linestyle': '-' if ModelSpec.Inducer not in modelSpecs else '--', 'arc_height': ac}}
+        regs = [reg]
+    elif modelType == ModelType.Duo_Input_Node:
+        truthTable = {
+                'AND': (True, True),
+                'OR': (True, True),
+                'IMPLY12': (True, False),
+                'IMPLY21': (False, True),
+                'NAND': (False, False),
+                'NOR': (False, False)
+        }
+        isActivated = truthTable[modelSpecs[0].name]
+        reg1 = {'type': 'Activation' if isActivated[0] else 'Repression', 'from_part': inPart1, 'to_part': outPromoter,
+                'opts': {'color': 'black', 'linewidth': lw, 'linestyle': '-', 'arc_height': ac}}
+        reg2 = {'type': 'Activation' if isActivated[1] else 'Repression', 'from_part': inPart2, 'to_part': outPromoter,
+                'opts': {'color': 'black', 'linewidth': lw, 'linestyle': '-', 'arc_height': ac}}
+        regs = [reg1, reg2]
+
+    # plot
+    fig, ax = plt.subplots(figsize=(6, 3))
+    dr = dpl.DNARenderer()
+    start, end = dr.renderDNA(ax, design, dr.SBOL_part_renderers(),
+        regs=regs, reg_renderers=dr.std_reg_renderers())
+    ax.set_xlim([start, end])
+    ax.set_ylim([-10, 30])
+    ax.set_aspect('equal')
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.axis('off')
+    if figPath != None:
+        plt.savefig(figPath, dpi=300, format='png')
     else:
         plt.show()

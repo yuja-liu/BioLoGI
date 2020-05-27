@@ -5,11 +5,17 @@
         "inducerTags": ["Arabinose"],
         "replicateTags": ["400 min", "410 min", "420 min", "430 min", "440 min"],
         "reporterTag": "RFP",
+        "chassisType": "prokaryotes",
         "file": "data/pBAD_rbspBb.tsv"
     },
     "solver": {
         "paraEstimator": "BFGS",
         "infoCriteria": "AIC",
         "modelSet": "Activation_System"
+    },
+    "output": {
+        "sbmlFile": "data/pBAD_rbspBb.sbml",
+        "sbolFile": "data/pBAD_rbspBb.sbol.png",
+        "figureFile": "data/pBAD_rbspBb.png"
     }
 }

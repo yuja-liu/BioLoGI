@@ -10,6 +10,10 @@ Input & output utilities
 
 import json
 import csv
+from biologiclib.modelBase import ModelType
+from sympy import symbols
+# customed version of simplesbml, to add units
+from biologiclib import simplesbml
 
 # Read input configurations, e.g. units and tags
 def readConfig(filePath):
@@ -69,3 +73,70 @@ def readInput(filePath, inducerTags, replicateTags, reporterTag):
         receiverStd += sRow
 
     return inducer, receiver, receiverStd
+
+def printSBML(modelType, eqn, theta, inducerTags, reporterTag,\
+        inducerUnits, reporterUnits, outputPath, **kargs):
+    '''
+    printSBML(modelType, eqn, theta, inducerTags, reporterTag, inducerUnits, reporterUnit, outputPath, **kargs)
+    Output a parameterized model to SBML
+    '''
+
+    model = simplesbml.sbmlModel()
+    # assign compartment
+    try:
+        chassisType
+    except NameError:
+        chassisType = 'prokaryotes'    # default
+    volumeMap = {
+            "prokaryotes": 1E-15,
+            "eukaryotes": 1E-12,
+            "cell_free": 1E-6
+    }    # units in L
+    model.addCompartment(volumeMap[chassisType], "comp1")
+
+    # register inducer & reporter to species
+    # remove empty characters in tags
+    emptyChar = [' ', '\t', '\n', '\r']
+    for char in emptyChar:
+        reporterTag = reporterTag.replace(char, '_')
+    for i in range(len(inducerTags)):
+        for char in emptyChar:
+            inducerTags[i] = inducerTags[i].replace(char, '_')
+    # if flanked by brackets, the unit of species will be automatically assigned to M instead of mole
+    # also, the actual id is striped of brackets
+    # check out https://simplesbml.readthedocs.io/en/latest/#simplesbml.sbmlModel.addSpecies
+    for it in inducerTags:    # all initialize to 0
+        model.addSpecies('[' + it + ']', 0.0, comp="comp1")
+    model.addSpecies('[' + reporterTag + ']', 0.0, comp="comp1")
+
+    # add parameters
+    unitsMap = {
+            "alpha": "molar_per_second", "alpha_1": "molar_per_second", "alpha_2": "molar_per_second", "alpha_3": "molar_per_second", "alpha_4": "molar_per_second",
+            "b": "molar_per_second",
+            "K": "molar", "K_I": "molar", "K_1": "molar", "K_2": "molar",
+            "n": "dimensionless", "n_1": "dimensionless", "n_2": "dimensionless",
+            "beta": "per_second"
+    }    # notice though in Hill, alpha is dimensionless, in ODE it is of per second
+    for key, val in theta.items():
+        model.addParameter(key, val, unitsMap[key])
+    # beta is set to 1.0 as default
+    model.addParameter('beta', 1.0, unitsMap['beta'])
+
+    # add generation rate rules
+    degradTerm = '-beta*' + reporterTag
+    if modelType == ModelType.Constant:
+        genTerm = 'alpha'
+    elif modelType == ModelType.Inducible or modelType == ModelType.Single_Input_Node:
+        A = symbols('A')
+        inducer = symbols(inducerTags[0])
+        genTerm = str(eqn.subs(A, inducer))
+    elif modelType == ModelType.Duo_Input_Node:
+        A_1, A_2 = symbols('A_1 A_2')
+        inducer1, inducer2 = symbols(inducerTags)
+        genTerm = str(eqn.subs((A_1, inducer1), (A_2, inducer2)))
+    rateRule = genTerm + degradTerm
+    model.addRateRule(reporterTag, rateRule)
+
+    # write to file
+    fo = open(outputPath, 'w')
+    fo.write(model.toSBML())

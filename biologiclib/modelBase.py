@@ -303,7 +303,7 @@ def __lambdifyEqn(eqn, thetaKeys, modelType):
 
 def genModel(modelType, modelSpecs = ()) :
     '''
-    model, constraints, thetaKeys, eqnStr, eqnSym = genModel(modelType, modelSpecs)
+    (model, eqnStr, eqnSym), constraints, thetaKeys = genModel(modelType, modelSpecs)
     '''
 
     # Check variable types. modelType: enum, modelSpecs: list/tuple
@@ -324,7 +324,7 @@ def genModel(modelType, modelSpecs = ()) :
     # Parameter injection
     model = __modelParaInterpreter(modelType, eqnFunc, thetaKeys)
 
-    return model, constraints, thetaKeys, eqnStr, eqnSym
+    return (model, eqnStr, eqnSym), thetaKeys, constraints
 
 # Generate default parameters: useful for initials
 def defaultPara(thetaList, inducer, reporter, repression = False):
@@ -385,7 +385,7 @@ def __modelParaInterpreter(modelType, modelFunc, thetaKeys):
         __supplementPara(theta, thetaKeys)
         serializedTheta = [theta[key] for key in thetaKeys]
 
-        X = np.array(X, dtype='float64')    # convert input to np array
+        X = np.array(X, dtype="float64")    # convert input to np array
         reporter = np.array([modelFunc(A, serializedTheta) for A in X])
 
         return np.squeeze(reporter)    # eliminate unwanted dimensions
