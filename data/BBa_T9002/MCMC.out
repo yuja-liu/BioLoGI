@@ -1,0 +1,974 @@
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:09<00:00, 1521.40draws/s]
+========================================
+# 1 Model
+0*A + alpha
+Type = Constant
+Specs =
+Parameters:
+alpha = 6.0581e+05; std: 2.1087e+03
+Residue = 4.9517e+12
+IC = 627.2649
+Time elapsed:15.44
+
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:09<00:00, 1520.16draws/s]
+========================================
+# 2 Model
+A*alpha + b
+Type = Inducible
+Specs = Linear
+Parameters:
+alpha = 4.4453e+09; std: 5.3008e+06, b = 5.4406e+05; std: 2.0417e+03
+Residue = 4.2796e+12
+IC = 625.7637
+Time elapsed:12.06
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:12<00:00, 1104.52draws/s]
+========================================
+# 3 Model
+A*alpha + K*b
+-------------
+    A + K    
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Activation
+Parameters:
+alpha = 1.0197e+06; std: 2.9542e+03, b = 5.6137e+02; std: 5.3779e+02, K = -1.9135e+01; std: 2.0000e-02
+Residue = 1.0179e+11
+IC = 538.0361
+Time elapsed:16.80
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:08<00:00, 1564.67draws/s]
+========================================
+# 4 Model
+A*alpha
+-------
+ A + K 
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Activation
+Parameters:
+alpha = 2.0310e+00; std: 1.1310e+00, K = -1.1140e+00; std: 1.3339e+01
+Residue = 1.3760e+13
+IC = 653.7933
+Time elapsed:12.60
+
+Solving log(K) instead
+Sampling 2 chains, 1 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:15<00:00, 886.05draws/s]
+There was 1 divergence after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 5 Model
+ 2          2  
+A *alpha + K *b
+---------------
+     2    2    
+    A  + K     
+Type = Inducible
+Specs = Quadratic, Basal_expression, Activation
+Parameters:
+alpha = 9.9813e+05; std: 2.9206e+03, b = 1.6589e+04; std: 3.3857e+03, K = -1.9031e+01; std: 1.8000e-02
+Residue = 1.3418e+10
+IC = 489.4038
+Time elapsed:19.95
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:08<00:00, 1557.74draws/s]
+========================================
+# 6 Model
+ 2      
+A *alpha
+--------
+ 2    2 
+A  + K  
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Activation
+Parameters:
+alpha = 2.9704e+03; std: 8.9120e+00, K = -1.6518e+01; std: 2.5000e-02
+Residue = 1.3694e+13
+IC = 653.6782
+Time elapsed:12.24
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:28<00:00, 497.77draws/s]
+========================================
+# 7 Model
+ n          n  
+A *alpha + K *b
+---------------
+     n    n    
+    A  + K     
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 9.9707e+05; std: 2.8801e+03, b = 2.3858e+04; std: 3.5532e+03, K = -1.8904e+01; std: 3.3000e-02, n = 2.5710e+00; std: 1.5400e-01
+Residue = 1.1934e+10
+IC = 488.5913
+Time elapsed:33.33
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:12<00:00, 1151.62draws/s]
+========================================
+# 8 Model
+ n      
+A *alpha
+--------
+ n    n 
+A  + K  
+Type = Inducible
+Specs = Hill, No_basal_expression, Activation
+Parameters:
+alpha = 7.5110e+00; std: 3.8230e+00, K = -4.4760e+00; std: 1.4756e+01, n = 3.7900e-01; std: 2.2400e-01
+Residue = 1.3760e+13
+IC = 655.7933
+Time elapsed:16.95
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [12:34<00:00, 18.56draws/s]
+========================================
+# 9 Model
+A*alpha      
+------- + K*b
+A + K_I      
+-------------
+    A        
+ ------- + K 
+ A + K_I     
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 1.0198e+06; std: 2.8803e+03, b = 5.6179e+02; std: 5.4826e+02, K = -1.4809e+01; std: 2.3750e+00, K_I = -4.3260e+00; std: 2.3750e+00
+Residue = 1.0180e+11
+IC = 540.0362
+Time elapsed:760.71
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 28 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:55<00:00, 251.32draws/s]
+There were 14 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 14 divergences after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 10 Model
+      K_I*alpha
+K*b + ---------
+       A + K_I 
+---------------
+        K_I    
+  K + -------  
+      A + K_I  
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 6.0609e+05; std: 2.1764e+03, b = 8.9935e+04; std: 5.2406e+04, K = -1.2867e+01; std: 4.5560e+00, K_I = 7.1500e-01; std: 5.9730e+00
+Residue = 4.9517e+12
+IC = 633.2649
+Time elapsed:68.66
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:12<00:00, 1088.68draws/s]
+========================================
+# 11 Model
+        A*alpha        
+-----------------------
+          /   A       \
+(A + K_I)*|------- + K|
+          \A + K_I    /
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 4.2244e+03; std: 7.8820e+00, K = -1.3983e+01; std: 2.6000e-02, K_I = -4.3890e+00; std: 2.8000e-02
+Residue = 1.3652e+13
+IC = 655.6044
+Time elapsed:18.28
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:17<00:00, 813.84draws/s]
+========================================
+# 12 Model
+    K*b    
+-----------
+      K_I  
+K + -------
+    A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 1.0265e+06; std: 2.9867e+03, K = -2.4990e+00; std: 1.7000e-02, K_I = -2.1341e+01; std: 2.0000e-03
+Residue = 1.7942e+11
+IC = 551.6380
+Time elapsed:23.65
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [14:39<00:00, 15.93draws/s]
+========================================
+# 13 Model
+  2              
+ A *alpha     2  
+---------- + K *b
+         2       
+(A + K_I)        
+-----------------
+      2          
+     A         2 
+ ---------- + K  
+          2      
+ (A + K_I)       
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 9.9811e+05; std: 2.8599e+03, b = 1.6617e+04; std: 3.3378e+03, K = -1.4216e+01; std: 2.5350e+00, K_I = -4.8160e+00; std: 2.5350e+00
+Residue = 1.3419e+10
+IC = 491.4044
+Time elapsed:889.69
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 308 divergences: 100%|████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:28<00:00, 159.07draws/s]
+There were 12 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 296 divergences after tuning. Increase `target_accept` or reparameterize.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 14 Model
+          2      
+ 2     K_I *alpha
+K *b + ----------
+                2
+       (A + K_I) 
+-----------------
+            2    
+  2      K_I     
+ K  + ---------- 
+               2 
+      (A + K_I)  
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 6.0609e+05; std: 2.2955e+03, b = 8.8976e+04; std: 5.2226e+04, K = -1.1699e+01; std: 5.3500e+00, K_I = 5.1400e-01; std: 6.0310e+00
+Residue = 4.9517e+12
+IC = 633.2649
+Time elapsed:99.52
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:13<00:00, 1074.62draws/s]
+========================================
+# 15 Model
+           2                
+          A *alpha          
+----------------------------
+           /     2         \
+         2 |    A         2|
+(A + K_I) *|---------- + K |
+           |         2     |
+           \(A + K_I)      /
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 3.7338e+03; std: 8.3570e+00, K = -1.3486e+01; std: 2.9000e-02, K_I = -4.3010e+00; std: 2.9000e-02
+Residue = 1.3668e+13
+IC = 655.6319
+Time elapsed:22.02
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 78 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:19<00:00, 177.02draws/s]
+There were 29 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 49 divergences after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 16 Model
+       2       
+      K *b     
+---------------
+           2   
+ 2      K_I    
+K  + ----------
+              2
+     (A + K_I) 
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 9.9834e+05; std: 2.8918e+03, K = -3.0830e+00; std: 1.5700e-01, K_I = -2.2096e+01; std: 1.6300e-01
+Residue = 1.6173e+10
+IC = 493.8854
+Time elapsed:89.53
+
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+Total Run Time: 2592.5813715457916
+========================================
+Model Choice:
+ n          n  
+A *alpha + K *b
+---------------
+     n    n    
+    A  + K     
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 9.9707e+05; std: 2.8801e+03, b = 2.3858e+04; std: 3.5532e+03, K = -1.8904e+01; std: 3.3000e-02, n = 2.5710e+00; std: 1.5400e-01
+Residue = 1.1934e+10
+IC = 488.5913
+========================================
+Successfully generated SBOL visuals
+
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:10<00:00, 1364.16draws/s]
+========================================
+# 1 Model
+0*A + alpha
+Type = Constant
+Specs =
+Parameters:
+alpha = 6.0579e+05; std: 2.0663e+03
+Residue = 4.9517e+12
+IC = 627.2649
+Time elapsed:16.93
+
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:11<00:00, 1255.34draws/s]
+========================================
+# 2 Model
+A*alpha + b
+Type = Inducible
+Specs = Linear
+Parameters:
+alpha = 4.4452e+09; std: 5.3760e+06, b = 5.4409e+05; std: 2.0712e+03
+Residue = 4.2796e+12
+IC = 625.7637
+Time elapsed:14.18
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:12<00:00, 1161.42draws/s]
+========================================
+# 3 Model
+A*alpha + K*b
+-------------
+    A + K
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Activation
+Parameters:
+alpha = 1.0197e+06; std: 2.9364e+03, b = 5.6186e+02; std: 5.4556e+02, K = 4.8953e-09; std: 2.0000e-02
+Residue = 1.0180e+11
+IC = 538.0362
+Time elapsed:15.59
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:08<00:00, 1647.82draws/s]
+========================================
+# 4 Model
+A*alpha
+-------
+ A + K
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Activation
+Parameters:
+alpha = 1.9750e+00; std: 1.1480e+00, K = 3.6385e-01; std: 1.3192e+01
+Residue = 1.3760e+13
+IC = 653.7933
+Time elapsed:11.49
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:19<00:00, 715.92draws/s]
+========================================
+# 5 Model
+ 2          2
+A *alpha + K *b
+---------------
+     2    2
+    A  + K
+Type = Inducible
+Specs = Quadratic, Basal_expression, Activation
+Parameters:
+alpha = 9.9815e+05; std: 2.9028e+03, b = 1.6641e+04; std: 3.3912e+03, K = 5.4318e-09; std: 1.8000e-02
+Residue = 1.3418e+10
+IC = 489.4038
+Time elapsed:23.45
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:11<00:00, 1256.85draws/s]
+========================================
+# 6 Model
+ 2
+A *alpha
+--------
+ 2    2
+A  + K
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Activation
+Parameters:
+alpha = 2.9704e+03; std: 9.0310e+00, K = 6.7105e-08; std: 2.4000e-02
+Residue = 1.3694e+13
+IC = 653.6782
+Time elapsed:16.28
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:40<00:00, 349.38draws/s]
+========================================
+# 7 Model
+ n          n
+A *alpha + K *b
+---------------
+     n    n
+    A  + K
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 9.9705e+05; std: 2.8883e+03, b = 2.3673e+04; std: 3.5875e+03, K = 6.1612e-09; std: 3.4000e-02, n = 2.5670e+00; std: 1.6000e-01
+Residue = 1.1936e+10
+IC = 488.5954
+Time elapsed:46.92
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:14<00:00, 964.02draws/s]
+========================================
+# 8 Model
+ n
+A *alpha
+--------
+ n    n
+A  + K
+Type = Inducible
+Specs = Hill, No_basal_expression, Activation
+Parameters:
+alpha = 7.4770e+00; std: 3.8620e+00, K = 1.2766e-02; std: 1.4701e+01, n = 3.7900e-01; std: 2.2300e-01
+Residue = 1.3760e+13
+IC = 655.7933
+Time elapsed:19.17
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [13:17<00:00, 17.56draws/s]
+========================================
+# 9 Model
+A*alpha
+------- + K*b
+A + K_I
+-------------
+    A
+ ------- + K
+ A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 1.0197e+06; std: 2.9632e+03, b = 5.4733e+02; std: 5.4107e+02, K = 3.8080e-07; std: 2.3150e+00, K_I = 1.2855e-02; std: 2.3150e+00
+Residue = 1.0179e+11
+IC = 540.0349
+Time elapsed:803.12
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 34 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:00<00:00, 230.29draws/s]
+There were 16 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 18 divergences after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 10 Model
+      K_I*alpha
+K*b + ---------
+       A + K_I
+---------------
+        K_I
+  K + -------
+      A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 6.0618e+05; std: 2.3025e+03, b = 9.1036e+04; std: 5.2478e+04, K = 2.6872e-06; std: 4.5750e+00, K_I = 1.6670e+00; std: 6.0230e+00
+Residue = 4.9517e+12
+IC = 633.2649
+Time elapsed:66.33
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:14<00:00, 962.53draws/s]
+========================================
+# 11 Model
+        A*alpha
+-----------------------
+          /   A       \
+(A + K_I)*|------- + K|
+          \A + K_I    /
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 4.2243e+03; std: 7.9580e+00, K = 8.4579e-07; std: 2.7000e-02, K_I = 1.2413e-02; std: 2.8000e-02
+Residue = 1.3652e+13
+IC = 655.6044
+Time elapsed:19.21
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:16<00:00, 846.57draws/s]
+========================================
+# 12 Model
+    K*b
+-----------
+      K_I
+K + -------
+    A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 1.0265e+06; std: 3.0012e+03, K = 8.2167e-02; std: 1.7000e-02, K_I = 5.3916e-10; std: 2.0000e-03
+Residue = 1.7942e+11
+IC = 551.6380
+Time elapsed:21.34
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [14:13<00:00, 16.41draws/s]
+========================================
+# 13 Model
+  2
+ A *alpha     2
+---------- + K *b
+         2
+(A + K_I)
+-----------------
+      2
+     A         2
+ ---------- + K
+          2
+ (A + K_I)
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 9.9820e+05; std: 2.8409e+03, b = 1.6630e+04; std: 3.3429e+03, K = 6.8421e-07; std: 2.5650e+00, K_I = 7.9387e-03; std: 2.5650e+00
+Residue = 1.3418e+10
+IC = 491.4039
+Time elapsed:859.54
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 371 divergences: 100%|████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:21<00:00, 171.79draws/s]
+There were 32 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 339 divergences after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 14 Model
+          2
+ 2     K_I *alpha
+K *b + ----------
+                2
+       (A + K_I)
+-----------------
+            2
+  2      K_I
+ K  + ----------
+               2
+      (A + K_I)
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 6.0593e+05; std: 2.1999e+03, b = 8.9771e+04; std: 5.2158e+04, K = 7.2537e-06; std: 5.2390e+00, K_I = 1.3566e+00; std: 6.0190e+00
+Residue = 4.9517e+12
+IC = 633.2649
+Time elapsed:87.10
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:13<00:00, 1011.70draws/s]
+========================================
+# 15 Model
+           2
+          A *alpha
+----------------------------
+           /     2         \
+         2 |    A         2|
+(A + K_I) *|---------- + K |
+           |         2     |
+           \(A + K_I)      /
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 3.7340e+03; std: 8.0570e+00, K = 1.3903e-06; std: 2.7000e-02, K_I = 1.3528e-02; std: 2.7000e-02
+Residue = 1.3668e+13
+IC = 655.6319
+Time elapsed:18.68
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 124 divergences: 100%|████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:10<00:00, 198.86draws/s]
+There were 36 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 88 divergences after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 16 Model
+       2
+      K *b
+---------------
+           2
+ 2      K_I
+K  + ----------
+              2
+     (A + K_I)
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 9.9841e+05; std: 2.9244e+03, K = 4.5320e-02; std: 1.4500e-01, K_I = 2.5039e-10; std: 1.5100e-01
+Residue = 1.6165e+10
+IC = 493.8730
+Time elapsed:76.17
+
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+/home/randolph/miniconda3/envs/biologic/lib/python3.6/site-packages/arviz/plots/backends/matplotlib/distplot.py:38: UserWarning: Argument backend_kwargs has not effect in matplotlib.plot_distSupplied value won't be used
+  "Argument backend_kwargs has not effect in matplotlib.plot_dist"
+Total Run Time: 6545.279466867447
+========================================
+Model Choice:
+ n          n
+A *alpha + K *b
+---------------
+     n    n
+    A  + K
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 9.9705e+05; std: 2.8883e+03, b = 2.3673e+04; std: 3.5875e+03, K = 6.1612e-09; std: 3.4000e-02, n = 2.5670e+00; std: 1.6000e-01
+Residue = 1.1936e+10
+IC = 488.5954
+========================================
+Successfully generated SBOL visuals
+
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:08<00:00, 1662.86draws/s]
+========================================
+# 1 Model
+0*A + alpha
+Type = Constant
+Specs =
+Parameters:
+alpha = 6.0580e+05; std: 2.0494e+03
+Residue = 4.9517e+12
+IC = 627.2649
+Time elapsed:25.57
+
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:08<00:00, 1676.40draws/s]
+========================================
+# 2 Model
+A*alpha + b
+Type = Inducible
+Specs = Linear
+Parameters:
+alpha = 4.4451e+09; std: 5.4509e+06, b = 5.4409e+05; std: 2.0687e+03
+Residue = 4.2796e+12
+IC = 625.7637
+Time elapsed:15.85
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:13<00:00, 1023.43draws/s]
+========================================
+# 3 Model
+A*alpha + K*b
+-------------
+    A + K
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Activation
+Parameters:
+alpha = 1.0197e+06; std: 2.9762e+03, b = 5.5334e+02; std: 5.5217e+02, K = 4.8953e-09; std: 2.0000e-02
+Residue = 1.0179e+11
+IC = 538.0355
+Time elapsed:30.75
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:08<00:00, 1664.51draws/s]
+========================================
+# 4 Model
+A*alpha
+-------
+ A + K
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Activation
+Parameters:
+alpha = 2.0180e+00; std: 1.1460e+00, K = 3.6678e-01; std: 1.3316e+01
+Residue = 1.3760e+13
+IC = 653.7933
+Time elapsed:18.04
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:12<00:00, 1086.24draws/s]
+========================================
+# 5 Model
+ 2          2
+A *alpha + K *b
+---------------
+     2    2
+    A  + K
+Type = Inducible
+Specs = Quadratic, Basal_expression, Activation
+Parameters:
+alpha = 9.9818e+05; std: 2.9041e+03, b = 1.6611e+04; std: 3.3956e+03, K = 5.4318e-09; std: 1.8000e-02
+Residue = 1.3418e+10
+IC = 489.4038
+Time elapsed:21.88
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:09<00:00, 1437.74draws/s]
+========================================
+# 6 Model
+ 2
+A *alpha
+--------
+ 2    2
+A  + K
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Activation
+Parameters:
+alpha = 2.9704e+03; std: 8.8970e+00, K = 6.7105e-08; std: 2.4000e-02
+Residue = 1.3694e+13
+IC = 653.6782
+Time elapsed:16.90
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:25<00:00, 552.04draws/s]
+========================================
+# 7 Model
+ n          n
+A *alpha + K *b
+---------------
+     n    n
+    A  + K
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 9.9705e+05; std: 2.9503e+03, b = 2.3751e+04; std: 3.6405e+03, K = 6.1612e-09; std: 3.4000e-02, n = 2.5700e+00; std: 1.5800e-01
+Residue = 1.1937e+10
+IC = 488.5957
+Time elapsed:42.38
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:11<00:00, 1242.95draws/s]
+========================================
+# 8 Model
+ n
+A *alpha
+--------
+ n    n
+A  + K
+Type = Inducible
+Specs = Hill, No_basal_expression, Activation
+Parameters:
+alpha = 7.3860e+00; std: 3.8510e+00, K = 1.1938e-02; std: 1.4762e+01, n = 3.8000e-01; std: 2.2200e-01
+Residue = 1.3760e+13
+IC = 655.7933
+Time elapsed:22.24
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [12:44<00:00, 18.32draws/s]
+========================================
+# 9 Model
+A*alpha
+------- + K*b
+A + K_I
+-------------
+    A
+ ------- + K
+ A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 1.0197e+06; std: 2.9597e+03, b = 5.5695e+02; std: 5.3512e+02, K = 3.8156e-07; std: 2.3860e+00, K_I = 1.2830e-02; std: 2.3860e+00
+Residue = 1.0179e+11
+IC = 540.0358
+Time elapsed:778.08
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 34 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:01<00:00, 226.31draws/s]
+There were 24 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 10 divergences after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 10 Model
+      K_I*alpha
+K*b + ---------
+       A + K_I
+---------------
+        K_I
+  K + -------
+      A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 6.0621e+05; std: 2.3118e+03, b = 9.0068e+04; std: 5.2691e+04, K = 2.8053e-06; std: 4.6380e+00, K_I = 1.8294e+00; std: 6.0770e+00
+Residue = 4.9517e+12
+IC = 633.2649
+Time elapsed:78.68
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:14<00:00, 984.86draws/s]
+========================================
+# 11 Model
+        A*alpha
+-----------------------
+          /   A       \
+(A + K_I)*|------- + K|
+          \A + K_I    /
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 4.2243e+03; std: 8.0740e+00, K = 8.4579e-07; std: 2.7000e-02, K_I = 1.2413e-02; std: 2.7000e-02
+Residue = 1.3652e+13
+IC = 655.6044
+Time elapsed:27.41
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:19<00:00, 718.61draws/s]
+========================================
+# 12 Model
+    K*b
+-----------
+      K_I
+K + -------
+    A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 1.0265e+06; std: 2.9773e+03, K = 8.2167e-02; std: 1.7000e-02, K_I = 5.3916e-10; std: 2.0000e-03
+Residue = 1.7942e+11
+IC = 551.6380
+Time elapsed:33.02
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [13:53<00:00, 16.80draws/s]
+========================================
+# 13 Model
+  2
+ A *alpha     2
+---------- + K *b
+         2
+(A + K_I)
+-----------------
+      2
+     A         2
+ ---------- + K
+          2
+ (A + K_I)
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 9.9812e+05; std: 2.8716e+03, b = 1.6561e+04; std: 3.4071e+03, K = 6.2158e-07; std: 2.5670e+00, K_I = 8.7299e-03; std: 2.5660e+00
+Residue = 1.3419e+10
+IC = 491.4044
+Time elapsed:847.59
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 417 divergences: 100%|████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:24<00:00, 165.75draws/s]
+There were 294 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 123 divergences after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 14 Model
+          2
+ 2     K_I *alpha
+K *b + ----------
+                2
+       (A + K_I)
+-----------------
+            2
+  2      K_I
+ K  + ----------
+               2
+      (A + K_I)
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 6.0600e+05; std: 2.2247e+03, b = 9.1506e+04; std: 5.2364e+04, K = 9.2675e-06; std: 5.3400e+00, K_I = 1.7333e+00; std: 6.1520e+00
+Residue = 4.9517e+12
+IC = 633.2649
+Time elapsed:96.93
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:12<00:00, 1138.19draws/s]
+========================================
+# 15 Model
+           2
+          A *alpha
+----------------------------
+           /     2         \
+         2 |    A         2|
+(A + K_I) *|---------- + K |
+           |         2     |
+           \(A + K_I)      /
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 3.7339e+03; std: 8.0670e+00, K = 1.3903e-06; std: 2.7000e-02, K_I = 1.3541e-02; std: 2.9000e-02
+Residue = 1.3668e+13
+IC = 655.6319
+Time elapsed:22.84
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 20 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:29<00:00, 156.62draws/s]
+There were 7 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 13 divergences after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 16 Model
+       2
+      K *b
+---------------
+           2
+ 2      K_I
+K  + ----------
+              2
+     (A + K_I)
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 9.9828e+05; std: 2.8197e+03, K = 4.5185e-02; std: 1.4500e-01, K_I = 2.4964e-10; std: 1.5100e-01
+Residue = 1.6162e+10
+IC = 493.8697
+Time elapsed:100.51
+
+Total Run Time: 2202.1684362888336
+========================================
+Model Choice:
+ n          n
+A *alpha + K *b
+---------------
+     n    n
+    A  + K
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 9.9705e+05; std: 2.9503e+03, b = 2.3751e+04; std: 3.6405e+03, K = 6.1612e-09; std: 3.4000e-02, n = 2.5700e+00; std: 1.5800e-01
+Residue = 1.1937e+10
+IC = 488.5957
+========================================
+Successfully generated SBOL visuals

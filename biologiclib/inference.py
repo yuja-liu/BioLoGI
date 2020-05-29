@@ -173,12 +173,19 @@ def paraPosterior(inducer, reporter, dp, thetaKeys, eqnFunc):
     with bayesianModel:
         thetaR = []
         for para0, key in zip(dp, thetaKeys):
-            paraR = pm.Uniform(key, lower=0, upper=2*abs(para0))
+            if key[0] != 'K':
+                paraR = pm.Uniform(key, lower=0, upper=4*abs(para0))
+            else:
+                print('Solving log(K) instead')
+                # K can be too small. instead, we calculate the dist of log(K)
+                magnitude = abs(np.log(abs(para0)))
+                paraR = np.exp(pm.Uniform(key, lower=-magnitude - 4, upper=magnitude + 4))
             thetaR.append(paraR)
         # The expected value for reporter
         mu = eqnFunc(np.squeeze(np.array(inducer)), thetaR)
-        sigma = pm.HalfNormal('sigma', 1)
-        g = sigma * (mu**2 + 1)
+        sigma = pm.HalfNormal('sigma', 1000)
+        g = 10000
+        #g = sigma * (abs(mu)**2 + 1)
         # TODO: duo-input
         # observed reporter
         obsReporter = pm.Normal('obsReporter', mu=mu, sigma=g, observed=reporter)
@@ -189,12 +196,18 @@ def paraPosterior(inducer, reporter, dp, thetaKeys, eqnFunc):
         # parameter means
         summary = pm.summary(trace)
         inferredTheta = [summary.loc[key, 'mean'] for key in thetaKeys]
+        correctedTheta = []
+        for key, val in zip(thetaKeys, inferredTheta):
+            if key[0] == 'K':
+                correctedTheta.append(np.exp(val))
+            else:
+                correctedTheta.append(val)
         # parameter stdev
         thetaStd = [summary.loc[key, 'sd'] for key in thetaKeys]
         # residue
-        reporterHat = np.squeeze(eqnFunc(np.array(inducer), inferredTheta))
+        reporterHat = np.squeeze(eqnFunc(np.array(inducer), correctedTheta))
         residue = sum((yHat - y)**2 for yHat, y in zip(reporterHat, reporter))
-    return inferredTheta, thetaStd, residue, trace
+    return correctedTheta, thetaStd, residue, trace    # K is reversed for the ease of plotting
 
 def infoCriteria(sse, theta, reporter, method = ModelCriterion.AIC):
     if method == ModelCriterion.AIC:
@@ -282,11 +295,8 @@ def __fitModel(modelType, modelSpecs,
     return meta, duration
 
 def selectModel(inducer, reporter, reporterStd,
-        inducerTags, replicateTags, reporterTag,
         modelSolver = ModelSolver.N_M, modelSet = ModelSet.Simple_Inducible_Promoter, modelCriterion = ModelCriterion.AIC,
-        inducerUnits = "M", reporterUnits = "M",
-        figPath = None, quiet=True, plot = True,
-        parallel = True):
+        quiet=True, parallel = True):
     '''
     Select the best model interpreting given inducer/reporter characterization data.
     Notice that fitting of alternative models is paralled. Thus, selectModel() cannot be run multiprocessed!
@@ -341,15 +351,6 @@ def selectModel(inducer, reporter, reporterStd,
                 minIC = meta.IC
                 bestModelMeta = meta
 
-    # Plotting
-    thetaDict = {key: val for key, val in zip(bestModelMeta.thetaKey, bestModelMeta.thetaVal)}
-    bestModel = modelBase.genModel(bestModelMeta.modelType, bestModelMeta.modelSpecs)[0][0]
-    if modelSolver == ModelSolver.MCMC:    # plot MCMC trace
-        pm.traceplot(bestModelMeta.trace)
-    if plot:
-        plotUtils.plotModel2D(inducer, reporter, reporterStd, thetaDict, bestModel,
-                inducerTags[0], reporterTag, inducerUnits, reporterUnits, figPath)
-
     return bestModelMeta, metas
 
 def printModel(meta):
@@ -357,9 +358,9 @@ def printModel(meta):
     print('Specs = ' + ', '.join([spec.name for spec in meta.modelSpecs]))
     if meta.thetaStd != None:
         print('Parameters:\n' +\
-                ', '.join(['%s = %.6f; std: %.6f'%(key, val, std) for key, val, std in zip(meta.thetaKey, meta.thetaVal, meta.thetaStd)]))
+                ', '.join(['%s = %.4e; std: %.4e'%(key, val, std) for key, val, std in zip(meta.thetaKey, meta.thetaVal, meta.thetaStd)]))
     else:
         print('Parameters:\n' +\
-                ', '.join(['%s = %.6f'%(key, val) for key, val in zip(meta.thetaKey, meta.thetaVal)]))
-    print('Residue = %.4f\nIC = %.4f'%(meta.residue, meta.IC))
+                ', '.join(['%s = %.4e'%(key, val) for key, val in zip(meta.thetaKey, meta.thetaVal)]))
+    print('Residue = %.4e\nIC = %.4f'%(meta.residue, meta.IC))
     stdout.flush()

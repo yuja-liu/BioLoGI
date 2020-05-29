@@ -27,7 +27,7 @@ def readConfig(filePath):
     return config
 
 # Tags are used to check the input file
-def readInput(filePath, inducerTags, replicateTags, reporterTag):
+def readSplitInput(filePath, inducerTags, replicateTags, reporterTag):
     # Input file should be tab-separated
     fi = open(filePath, 'r')
     lines = csv.reader(fi, dialect="excel-tab")
@@ -68,11 +68,26 @@ def readInput(filePath, inducerTags, replicateTags, reporterTag):
     # reshape
     inducer, receiver, receiverStd = [], [], []
     for rRow, sRow in zip(dataOutput, dataStd):
-        inducer += dataInput
-        receiver += rRow
-        receiverStd += sRow
+        inducer.append(dataInput)
+        receiver.append(rRow)
+        receiverStd.append(sRow)
 
     return inducer, receiver, receiverStd
+
+def readInput(filePath, inducerTags, replicateTags, reporterTag):
+    '''
+    inducer, receiver, receiverStd = readInput(filePath, inducerTags, replicateTags, reporterTag)
+    Read characterization data from file, returning a single vector of input (inducer), output (reporter) and the standard deviation of output.
+    '''
+    inSplit, outSplit, stdSplit = readSplitInput(filePath, inducerTags, replicateTags, reporterTag)
+    
+    # concatenate
+    inducer, reporter, reporterStd = [], [], []
+    for i, o, s in zip(inSplit, outSplit, stdSplit):
+        inducer += i
+        reporter += o
+        reporterStd += s
+    return inducer, reporter, reporterStd
 
 def printSBML(modelType, eqn, theta, inducerTags, reporterTag,\
         inducerUnits, reporterUnits, outputPath, **kargs):
@@ -135,6 +150,7 @@ def printSBML(modelType, eqn, theta, inducerTags, reporterTag,\
         inducer1, inducer2 = symbols(inducerTags)
         genTerm = str(eqn.subs((A_1, inducer1), (A_2, inducer2)))
     rateRule = genTerm + degradTerm
+    rateRule = rateRule.replace('**', '^')    # a hack for exponential problem
     model.addRateRule(reporterTag, rateRule)
 
     # write to file

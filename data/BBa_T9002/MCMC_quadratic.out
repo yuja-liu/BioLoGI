@@ -1,0 +1,980 @@
+Sampling 2 chains, 1,787 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:20<00:00, 666.72draws/s]
+There were 1787 divergences after tuning. Increase `target_accept` or reparameterize.
+The rhat statistic is larger than 1.4 for some parameters. The sampler did not converge.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 1 Model
+0*A + alpha
+Type = Constant
+Specs = 
+Parameters:
+alpha = 2.9889e+05; std: 2.9533e+05
+Residue = 7.2126e+12
+IC = 636.2910
+Time elapsed:29.29
+
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:22<00:00, 627.04draws/s]
+========================================
+# 2 Model
+A*alpha + b
+Type = Inducible
+Specs = Linear
+Parameters:
+alpha = 1.9294e+09; std: 1.6552e+09, b = 5.4028e+05; std: 1.0574e+05
+Residue = 4.5714e+12
+IC = 627.3467
+Time elapsed:30.82
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:21<00:00, 171.00draws/s]
+========================================
+# 3 Model
+A*alpha + K*b
+-------------
+    A + K    
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Activation
+Parameters:
+alpha = 2.0255e+06; std: 1.1923e+06, b = 4.9087e+02; std: 4.9491e+03, K = 1.0001e+05; std: 6.6980e+00
+Residue = 1.3746e+13
+IC = 655.7684
+Time elapsed:95.19
+
+Solving log(K) instead
+Sampling 2 chains, 1 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:27<00:00, 513.67draws/s]
+There was 1 divergence after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 4 Model
+A*alpha
+-------
+ A + K 
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Activation
+Parameters:
+alpha = 7.7660e+00; std: 9.5000e-02, K = 4.8156e-10; std: 3.9500e-01
+Residue = 1.3760e+13
+IC = 653.7930
+Time elapsed:36.84
+
+Solving log(K) instead
+Sampling 2 chains, 4 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:15<00:00, 185.72draws/s]
+There were 4 divergences after tuning. Increase `target_accept` or reparameterize.
+The rhat statistic is larger than 1.4 for some parameters. The sampler did not converge.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 5 Model
+ 2          2  
+A *alpha + K *b
+---------------
+     2    2    
+    A  + K     
+Type = Inducible
+Specs = Quadratic, Basal_expression, Activation
+Parameters:
+alpha = 1.1952e+06; std: 1.0659e+06, b = 1.6528e+04; std: 2.6857e+04, K = 3.3094e-03; std: 1.5002e+01
+Residue = 1.3279e+13
+IC = 654.9403
+Time elapsed:85.47
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:23<00:00, 587.45draws/s]
+========================================
+# 6 Model
+ 2      
+A *alpha
+--------
+ 2    2 
+A  + K  
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Activation
+Parameters:
+alpha = 2.9597e+02; std: 3.5390e+01, K = 6.7105e-08; std: 2.5000e-02
+Residue = 1.3753e+13
+IC = 653.7819
+Time elapsed:31.22
+
+Solving log(K) instead
+Sampling 2 chains, 76 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:41<00:00, 137.70draws/s]
+There were 76 divergences after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 7 Model
+ n          n  
+A *alpha + K *b
+---------------
+     n    n    
+    A  + K     
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 8.4876e+05; std: 6.4299e+04, b = 2.6599e+04; std: 1.2952e+02, K = 5.4047e-09; std: 2.5200e-01, n = 4.1150e+00; std: 6.5100e-01
+Residue = 2.7499e+11
+IC = 563.8870
+Time elapsed:117.75
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:23<00:00, 594.06draws/s]
+========================================
+# 8 Model
+ n      
+A *alpha
+--------
+ n    n 
+A  + K  
+Type = Inducible
+Specs = Hill, No_basal_expression, Activation
+Parameters:
+alpha = 1.3609e+01; std: 2.1050e+00, K = 2.5150e-09; std: 9.0000e-01, n = 6.4600e-01; std: 1.7600e-01
+Residue = 1.3759e+13
+IC = 655.7927
+Time elapsed:38.29
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 4 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [02:14<00:00, 103.88draws/s]
+There were 4 divergences after tuning. Increase `target_accept` or reparameterize.
+The rhat statistic is larger than 1.4 for some parameters. The sampler did not converge.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 9 Model
+A*alpha      
+------- + K*b
+A + K_I      
+-------------
+    A        
+ ------- + K 
+ A + K_I     
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 1.1966e+06; std: 1.1760e+06, b = 1.2517e+04; std: 1.3194e+04, K = 5.9013e-02; std: 1.2725e+01, K_I = 2.2515e-01; std: 4.6990e+00
+Residue = 1.3341e+13
+IC = 657.0522
+Time elapsed:151.47
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 170 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [03:27<00:00, 67.57draws/s]
+There were 123 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 47 divergences after tuning. Increase `target_accept` or reparameterize.
+The rhat statistic is larger than 1.4 for some parameters. The sampler did not converge.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 10 Model
+      K_I*alpha
+K*b + ---------
+       A + K_I 
+---------------
+        K_I    
+  K + -------  
+      A + K_I  
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 8.4884e+05; std: 6.4147e+05, b = 1.1503e+05; std: 1.2907e+05, K = 1.4368e+01; std: 1.3500e+01, K_I = 1.2177e+00; std: 6.1790e+00
+Residue = 9.6624e+12
+IC = 649.3090
+Time elapsed:224.59
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:23<00:00, 600.44draws/s]
+========================================
+# 11 Model
+        A*alpha        
+-----------------------
+          /   A       \
+(A + K_I)*|------- + K|
+          \A + K_I    /
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 1.6706e+01; std: 2.0470e+00, K = 9.0259e-07; std: 8.8000e-02, K_I = 1.3260e-02; std: 8.7000e-02
+Residue = 1.3759e+13
+IC = 655.7926
+Time elapsed:37.69
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:47<00:00, 129.88draws/s]
+========================================
+# 12 Model
+    K*b    
+-----------
+      K_I  
+K + -------
+    A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 3.0433e+06; std: 1.8269e+06, K = 1.7193e-05; std: 1.1640e+00, K_I = 2.2229e+02; std: 9.0350e+00
+Residue = 1.3758e+13
+IC = 655.7907
+Time elapsed:120.90
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 6,334 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:41<00:00, 338.57draws/s]
+There were 3297 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 3037 divergences after tuning. Increase `target_accept` or reparameterize.
+The rhat statistic is larger than 1.4 for some parameters. The sampler did not converge.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 13 Model
+  2              
+ A *alpha     2  
+---------- + K *b
+         2       
+(A + K_I)        
+-----------------
+      2          
+     A         2 
+ ---------- + K  
+          2      
+ (A + K_I)       
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 5.5026e+05; std: 3.1510e+05, b = 2.9742e+04; std: 3.9186e+04, K = 1.0035e-06; std: 3.8940e+00, K_I = 1.7249e-02; std: 1.7330e+00
+Residue = 3.5918e+12
+IC = 625.5588
+Time elapsed:53.54
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 565 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [04:07<00:00, 56.59draws/s]
+There were 560 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 5 divergences after tuning. Increase `target_accept` or reparameterize.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 14 Model
+          2      
+ 2     K_I *alpha
+K *b + ----------
+                2
+       (A + K_I) 
+-----------------
+            2    
+  2      K_I     
+ K  + ---------- 
+               2 
+      (A + K_I)  
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 1.1485e+06; std: 6.9859e+05, b = 5.5406e+04; std: 9.9337e+04, K = 8.8891e+02; std: 1.0574e+01, K_I = 2.2479e+00; std: 6.3000e+00
+Residue = 1.2222e+13
+IC = 654.9496
+Time elapsed:260.69
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:30<00:00, 462.36draws/s]
+========================================
+# 15 Model
+           2                
+          A *alpha          
+----------------------------
+           /     2         \
+         2 |    A         2|
+(A + K_I) *|---------- + K |
+           |         2     |
+           \(A + K_I)      /
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 2.9510e+01; std: 3.7150e+00, K = 1.3917e-06; std: 2.9000e-02, K_I = 1.3541e-02; std: 2.8000e-02
+Residue = 1.3759e+13
+IC = 655.7921
+Time elapsed:40.20
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:31<00:00, 153.58draws/s]
+========================================
+# 16 Model
+       2       
+      K *b     
+---------------
+           2   
+ 2      K_I    
+K  + ----------
+              2
+     (A + K_I) 
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 3.8418e+06; std: 2.2304e+06, K = 3.6868e-03; std: 6.0400e-01, K_I = 1.0083e+03; std: 9.1920e+00
+Residue = 1.3758e+13
+IC = 655.7907
+Time elapsed:100.94
+
+Total Run Time: 1454.9056282043457
+========================================
+Model Choice:
+ n          n  
+A *alpha + K *b
+---------------
+     n    n    
+    A  + K     
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 8.4876e+05; std: 6.4299e+04, b = 2.6599e+04; std: 1.2952e+02, K = 5.4047e-09; std: 2.5200e-01, n = 4.1150e+00; std: 6.5100e-01
+Residue = 2.7499e+11
+IC = 563.8870
+========================================
+Successfully plotted model fitting
+========================================
+Successfully generated SBOL visuals
+
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:20<00:00, 680.97draws/s]
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 1 Model
+0*A + alpha
+Type = Constant
+Specs =
+Parameters:
+alpha = 2.9915e+05; std: 2.9368e+05
+Residue = 7.2086e+12
+IC = 636.2779
+Time elapsed:31.08
+
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:22<00:00, 629.22draws/s]
+========================================
+# 2 Model
+A*alpha + b
+Type = Inducible
+Specs = Linear
+Parameters:
+alpha = 1.9362e+09; std: 1.6654e+09, b = 5.4008e+05; std: 1.0430e+05
+Residue = 4.5704e+12
+IC = 627.3418
+Time elapsed:28.20
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:19<00:00, 176.67draws/s]
+========================================
+# 3 Model
+A*alpha + K*b
+-------------
+    A + K
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Activation
+Parameters:
+alpha = 2.0248e+06; std: 1.1896e+06, b = 5.4778e+02; std: 4.6429e+03, K = 1.2512e+05; std: 6.7700e+00
+Residue = 1.3744e+13
+IC = 655.7656
+Time elapsed:90.90
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:36<00:00, 384.69draws/s]
+========================================
+# 4 Model
+A*alpha
+-------
+ A + K
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Activation
+Parameters:
+alpha = 7.7650e+00; std: 9.5000e-02, K = 4.8204e-10; std: 4.0200e-01
+Residue = 1.3760e+13
+IC = 653.7930
+Time elapsed:44.75
+
+Solving log(K) instead
+Sampling 2 chains, 754 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [03:35<00:00, 65.07draws/s]
+There were 754 divergences after tuning. Increase `target_accept` or reparameterize.
+The rhat statistic is larger than 1.4 for some parameters. The sampler did not converge.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 5 Model
+ 2          2
+A *alpha + K *b
+---------------
+     2    2
+    A  + K
+Type = Inducible
+Specs = Quadratic, Basal_expression, Activation
+Parameters:
+alpha = 1.6318e+06; std: 1.1838e+06, b = 8.1630e+03; std: 2.2590e+04, K = 1.3860e+01; std: 1.3695e+01
+Residue = 1.3524e+13
+IC = 655.3785
+Time elapsed:237.10
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:26<00:00, 161.60draws/s]
+========================================
+# 6 Model
+ 2
+A *alpha
+--------
+ 2    2
+A  + K
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Activation
+Parameters:
+alpha = 2.9500e+02; std: 3.5403e+01, K = 6.7105e-08; std: 2.4000e-02
+Residue = 1.3753e+13
+IC = 653.7819
+Time elapsed:105.48
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [04:06<00:00, 56.72draws/s]
+========================================
+# 7 Model
+ n          n
+A *alpha + K *b
+---------------
+     n    n
+    A  + K
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 8.4481e+05; std: 6.2587e+04, b = 2.6598e+04; std: 1.2989e+02, K = 5.2765e-09; std: 2.5800e-01, n = 4.1740e+00; std: 6.7100e-01
+Residue = 2.8944e+11
+IC = 565.1161
+Time elapsed:279.17
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:48<00:00, 129.58draws/s]
+========================================
+# 8 Model
+ n
+A *alpha
+--------
+ n    n
+A  + K
+Type = Inducible
+Specs = Hill, No_basal_expression, Activation
+Parameters:
+alpha = 1.3467e+01; std: 1.9830e+00, K = 2.4019e-09; std: 8.9900e-01, n = 6.5200e-01; std: 1.7500e-01
+Residue = 1.3759e+13
+IC = 655.7927
+Time elapsed:142.37
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 181 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [04:39<00:00, 50.15draws/s]
+There were 181 divergences after tuning. Increase `target_accept` or reparameterize.
+The rhat statistic is larger than 1.4 for some parameters. The sampler did not converge.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 9 Model
+A*alpha
+------- + K*b
+A + K_I
+-------------
+    A
+ ------- + K
+ A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 1.5784e+06; std: 1.2690e+06, b = 7.2856e+03; std: 1.3902e+04, K = 1.2098e+01; std: 1.1920e+01, K_I = 8.2531e-01; std: 4.8710e+00
+Residue = 1.3549e+13
+IC = 657.4230
+Time elapsed:311.42
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 309 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [03:05<00:00, 75.47draws/s]
+There were 199 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 110 divergences after tuning. Increase `target_accept` or reparameterize.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 10 Model
+      K_I*alpha
+K*b + ---------
+       A + K_I
+---------------
+        K_I
+  K + -------
+      A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 9.7867e+05; std: 6.3721e+05, b = 1.0117e+05; std: 1.2726e+05, K = 2.2163e+02; std: 1.2302e+01, K_I = 1.1865e+00; std: 6.0440e+00
+Residue = 1.0968e+13
+IC = 652.3518
+Time elapsed:195.63
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:19<00:00, 724.47draws/s]
+========================================
+# 11 Model
+        A*alpha
+-----------------------
+          /   A       \
+(A + K_I)*|------- + K|
+          \A + K_I    /
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 1.6723e+01; std: 2.0730e+00, K = 9.0349e-07; std: 8.9000e-02, K_I = 1.3247e-02; std: 8.9000e-02
+Residue = 1.3759e+13
+IC = 655.7926
+Time elapsed:27.43
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:18<00:00, 177.79draws/s]
+========================================
+# 12 Model
+    K*b
+-----------
+      K_I
+K + -------
+    A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 3.0651e+06; std: 1.8299e+06, K = 1.7349e-05; std: 1.1470e+00, K_I = 2.7700e+02; std: 9.0090e+00
+Residue = 1.3758e+13
+IC = 655.7906
+Time elapsed:86.74
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 1,751 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:17<00:00, 180.36draws/s]
+There were 675 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 1076 divergences after tuning. Increase `target_accept` or reparameterize.
+The rhat statistic is larger than 1.4 for some parameters. The sampler did not converge.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 13 Model
+  2
+ A *alpha     2
+---------- + K *b
+         2
+(A + K_I)
+-----------------
+      2
+     A         2
+ ---------- + K
+          2
+ (A + K_I)
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 1.0480e+06; std: 9.5926e+05, b = 1.9759e+04; std: 4.0790e+04, K = 7.5409e-04; std: 1.2246e+01, K_I = 4.2189e-01; std: 4.2950e+00
+Residue = 1.2669e+13
+IC = 655.8112
+Time elapsed:87.48
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 154 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [02:20<00:00, 99.36draws/s]
+There were 127 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 27 divergences after tuning. Increase `target_accept` or reparameterize.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 14 Model
+          2
+ 2     K_I *alpha
+K *b + ----------
+                2
+       (A + K_I)
+-----------------
+            2
+  2      K_I
+ K  + ----------
+               2
+      (A + K_I)
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 7.0022e+05; std: 6.9955e+05, b = 1.1262e+05; std: 1.2542e+05, K = 5.7580e-01; std: 1.2928e+01, K_I = 1.0325e+00; std: 6.2880e+00
+Residue = 5.0164e+12
+IC = 633.5764
+Time elapsed:151.54
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:22<00:00, 625.36draws/s]
+========================================
+# 15 Model
+           2
+          A *alpha
+----------------------------
+           /     2         \
+         2 |    A         2|
+(A + K_I) *|---------- + K |
+           |         2     |
+           \(A + K_I)      /
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 2.9474e+01; std: 3.6460e+00, K = 1.3931e-06; std: 2.9000e-02, K_I = 1.3555e-02; std: 2.8000e-02
+Residue = 1.3759e+13
+IC = 655.7921
+Time elapsed:28.93
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:27<00:00, 505.13draws/s]
+========================================
+# 16 Model
+       2
+      K *b
+---------------
+           2
+ 2      K_I
+K  + ----------
+              2
+     (A + K_I)
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 3.8473e+05; std: 6.0151e+04, K = 2.6290e-01; std: 8.2000e-02, K_I = 2.0632e-09; std: 2.8800e-01
+Residue = 5.2919e+12
+IC = 632.8596
+Time elapsed:35.16
+
+Total Run Time: 1883.419777393341
+========================================
+Model Choice:
+ n          n
+A *alpha + K *b
+---------------
+     n    n
+    A  + K
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 8.4481e+05; std: 6.2587e+04, b = 2.6598e+04; std: 1.2989e+02, K = 5.2765e-09; std: 2.5800e-01, n = 4.1740e+00; std: 6.7100e-01
+Residue = 2.8944e+11
+IC = 565.1161
+========================================
+Successfully plotted model fitting
+========================================
+Successfully generated SBOL visuals
+
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:21<00:00, 656.05draws/s]
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 1 Model
+0*A + alpha
+Type = Constant
+Specs =
+Parameters:
+alpha = 8.8867e+04; std: 2.1002e+05
+Residue = 1.1365e+13
+IC = 647.2046
+Time elapsed:30.83
+
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:17<00:00, 806.98draws/s]
+========================================
+# 2 Model
+A*alpha + b
+Type = Inducible
+Specs = Linear
+Parameters:
+alpha = 1.9337e+09; std: 1.6878e+09, b = 5.4004e+05; std: 1.0827e+05
+Residue = 4.5710e+12
+IC = 627.3447
+Time elapsed:23.14
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:30<00:00, 154.22draws/s]
+========================================
+# 3 Model
+A*alpha + K*b
+-------------
+    A + K
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Activation
+Parameters:
+alpha = 2.0396e+06; std: 1.1917e+06, b = 6.4367e+02; std: 6.3153e+03, K = 1.0274e+05; std: 6.6550e+00
+Residue = 1.3741e+13
+IC = 655.7607
+Time elapsed:98.11
+
+Solving log(K) instead
+Sampling 2 chains, 2 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:13<00:00, 1017.00draws/s]
+There were 2 divergences after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 4 Model
+A*alpha
+-------
+ A + K
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Activation
+Parameters:
+alpha = 7.7660e+00; std: 9.6000e-02, K = 4.8252e-10; std: 3.9400e-01
+Residue = 1.3760e+13
+IC = 653.7930
+Time elapsed:22.17
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:30<00:00, 457.73draws/s]
+========================================
+# 5 Model
+ 2          2
+A *alpha + K *b
+---------------
+     2    2
+    A  + K
+Type = Inducible
+Specs = Quadratic, Basal_expression, Activation
+Parameters:
+alpha = 5.2553e+05; std: 9.0994e+04, b = 2.5668e+04; std: 8.0853e+02, K = 8.6908e-09; std: 1.7100e-01
+Residue = 3.3445e+12
+IC = 621.8469
+Time elapsed:39.86
+
+Solving log(K) instead
+Sampling 2 chains, 5 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:27<00:00, 517.74draws/s]
+There were 3 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 2 divergences after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 6 Model
+ 2
+A *alpha
+--------
+ 2    2
+A  + K
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Activation
+Parameters:
+alpha = 2.9519e+02; std: 3.4623e+01, K = 6.7105e-08; std: 2.5000e-02
+Residue = 1.3753e+13
+IC = 653.7819
+Time elapsed:33.76
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:14<00:00, 189.08draws/s]
+========================================
+# 7 Model
+ n          n
+A *alpha + K *b
+---------------
+     n    n
+    A  + K
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 8.4710e+05; std: 6.3731e+04, b = 2.6599e+04; std: 1.2839e+02, K = 5.3724e-09; std: 2.5400e-01, n = 4.1300e+00; std: 6.5800e-01
+Residue = 2.8092e+11
+IC = 564.3986
+Time elapsed:83.53
+
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:19<00:00, 702.90draws/s]
+========================================
+# 8 Model
+ n
+A *alpha
+--------
+ n    n
+A  + K
+Type = Inducible
+Specs = Hill, No_basal_expression, Activation
+Parameters:
+alpha = 1.3519e+01; std: 2.0600e+00, K = 2.3875e-09; std: 9.0800e-01, n = 6.5700e-01; std: 1.8700e-01
+Residue = 1.3759e+13
+IC = 655.7927
+Time elapsed:28.45
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 65 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:19<00:00, 175.05draws/s]
+There were 65 divergences after tuning. Increase `target_accept` or reparameterize.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 9 Model
+A*alpha
+------- + K*b
+A + K_I
+-------------
+    A
+ ------- + K
+ A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 1.8321e+06; std: 1.2436e+06, b = 3.6233e+03; std: 1.2606e+04, K = 6.1033e+02; std: 9.4290e+00, K_I = 1.7807e+00; std: 4.8620e+00
+Residue = 1.3655e+13
+IC = 657.6094
+Time elapsed:90.26
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 144 divergences: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [02:21<00:00, 99.03draws/s]
+There were 56 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 88 divergences after tuning. Increase `target_accept` or reparameterize.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 10 Model
+      K_I*alpha
+K*b + ---------
+       A + K_I
+---------------
+        K_I
+  K + -------
+      A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 7.8629e+05; std: 5.3002e+05, b = 1.8085e+05; std: 1.2110e+05, K = 4.3413e-02; std: 1.1601e+01, K_I = 1.1972e+00; std: 6.1970e+00
+Residue = 5.5305e+12
+IC = 635.9178
+Time elapsed:151.20
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:29<00:00, 467.89draws/s]
+========================================
+# 11 Model
+        A*alpha
+-----------------------
+          /   A       \
+(A + K_I)*|------- + K|
+          \A + K_I    /
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 1.6675e+01; std: 2.0740e+00, K = 9.0349e-07; std: 8.8000e-02, K_I = 1.3220e-02; std: 8.5000e-02
+Residue = 1.3759e+13
+IC = 655.7926
+Time elapsed:38.57
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:15<00:00, 185.63draws/s]
+========================================
+# 12 Model
+    K*b
+-----------
+      K_I
+K + -------
+    A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 3.2041e+06; std: 1.7906e+06, K = 1.5635e-05; std: 1.1420e+00, K_I = 1.7089e+02; std: 8.9220e+00
+Residue = 1.3758e+13
+IC = 655.7908
+Time elapsed:83.18
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 2,338 divergences: 100%|███████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [04:14<00:00, 54.97draws/s]
+There were 22 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 2316 divergences after tuning. Increase `target_accept` or reparameterize.
+The rhat statistic is larger than 1.4 for some parameters. The sampler did not converge.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 13 Model
+  2
+ A *alpha     2
+---------- + K *b
+         2
+(A + K_I)
+-----------------
+      2
+     A         2
+ ---------- + K
+          2
+ (A + K_I)
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 6.7839e+05; std: 5.7832e+05, b = 2.3042e+04; std: 1.4436e+04, K = 2.0791e-05; std: 7.2080e+00, K_I = 9.8331e-03; std: 3.7440e+00
+Residue = 4.7402e+12
+IC = 632.2173
+Time elapsed:264.88
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 45 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [02:32<00:00, 91.85draws/s]
+There were 44 divergences after tuning. Increase `target_accept` or reparameterize.
+There was 1 divergence after tuning. Increase `target_accept` or reparameterize.
+The rhat statistic is larger than 1.4 for some parameters. The sampler did not converge.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 14 Model
+          2
+ 2     K_I *alpha
+K *b + ----------
+                2
+       (A + K_I)
+-----------------
+            2
+  2      K_I
+ K  + ----------
+               2
+      (A + K_I)
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 9.7542e+05; std: 6.6332e+05, b = 6.4894e+04; std: 1.0913e+05, K = 2.0479e+02; std: 1.1999e+01, K_I = 1.1491e+00; std: 6.2500e+00
+Residue = 1.1973e+13
+IC = 654.4555
+Time elapsed:165.74
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 2 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [00:33<00:00, 423.92draws/s]
+There was 1 divergence after tuning. Increase `target_accept` or reparameterize.
+There was 1 divergence after tuning. Increase `target_accept` or reparameterize.
+========================================
+# 15 Model
+           2
+          A *alpha
+----------------------------
+           /     2         \
+         2 |    A         2|
+(A + K_I) *|---------- + K |
+           |         2     |
+           \(A + K_I)      /
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 2.9544e+01; std: 3.7040e+00, K = 1.3931e-06; std: 2.8000e-02, K_I = 1.3555e-02; std: 2.9000e-02
+Residue = 1.3759e+13
+IC = 655.7921
+Time elapsed:44.29
+
+Solving log(K) instead
+Solving log(K) instead
+Sampling 2 chains, 0 divergences: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 14000/14000 [01:31<00:00, 153.05draws/s]
+The rhat statistic is larger than 1.4 for some parameters. The sampler did not converge.
+The estimated number of effective samples is smaller than 200 for some parameters.
+========================================
+# 16 Model
+       2
+      K *b
+---------------
+           2
+ 2      K_I
+K  + ----------
+              2
+     (A + K_I)
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 2.0974e+06; std: 2.3427e+06, K = 3.1179e-02; std: 2.1730e+00, K_I = 1.2901e-03; std: 1.4787e+01
+Residue = 1.3699e+13
+IC = 655.6862
+Time elapsed:103.05
+
+Total Run Time: 1301.051463842392
+========================================
+Model Choice:
+ n          n
+A *alpha + K *b
+---------------
+     n    n
+    A  + K
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 8.4710e+05; std: 6.3731e+04, b = 2.6599e+04; std: 1.2839e+02, K = 5.3724e-09; std: 2.5400e-01, n = 4.1300e+00; std: 6.5800e-01
+Residue = 2.8092e+11
+IC = 564.3986
+========================================
+Successfully plotted model fitting
+========================================
+Successfully generated SBOL visuals

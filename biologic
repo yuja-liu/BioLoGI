@@ -15,6 +15,7 @@ from biologiclib import ioUtils, inference, modelBase, plotUtils
 from biologiclib.modelBase import ModelSet
 from biologiclib.inference import ModelSolver, ModelCriterion
 import time
+import pymc3 as pm
 
 helpInfo = '''
 BioLogic
@@ -84,14 +85,18 @@ def main():
         sbolPath = config.get('output', {}).get('sbolFile', None)
 
         # inducer/reporter matrix from file
-        inducer, reporter, reporterStd = ioUtils.readInput(filePath, inducerTags, replicateTags, reporterTag)
+        inSplit, outSplit, stdSplit = ioUtils.readSplitInput(filePath, inducerTags, replicateTags, reporterTag)
+        inducer, reporter, reporterStd = [], [], []
+        for i, o, s in zip(inSplit, outSplit, stdSplit):
+            inducer += i
+            reporter += o
+            reporterStd += s
 
         startTime = time.time()
         #modelBase.initializeModelBase()
-        bestModel, _ = inference.selectModel(inducer, reporter, reporterStd,
-                inducerTags, replicateTags, reporterTag,
+        bestModel, _ = inference.selectModel(
+                inducer, reporter, reporterStd,
                 modelSolver, modelSet, modelCriterion,
-                inducerUnits, reporterUnits, figurePath,
                 quiet=False, parallel=True)
         print("Total Run Time:", time.time() - startTime)    # Note this includes plotting elapse
 
@@ -100,20 +105,31 @@ def main():
         print('Model Choice:')
         inference.printModel(bestModel)
 
-        # output to sbml
-        ioUtils.printSBML(
-                bestModel.modelType,
-                bestModel.expression,
-                {key: val for key, val in zip(bestModel.thetaKey, bestModel.thetaVal)},
-                inducerTags,
-                reporterTag,
-                inducerUnits,
-                reporterUnits,
-                sbmlPath,
-                chassisType=chassisType
-        )
+        # Plotting
+        thetaDict = {key: val for key, val in zip(bestModel.thetaKey, bestModel.thetaVal)}
+        modelFunc = modelBase.genModel(bestModel.modelType, bestModel.modelSpecs)[0][0]
+        if modelSolver == ModelSolver.MCMC:    # plot MCMC trace
+            pm.traceplot(bestModel.trace)
+        plotUtils.plotModel2D(inSplit, outSplit, stdSplit, thetaDict, modelFunc,
+                inducerTags[0], reporterTag, inducerUnits, reporterUnits, figurePath)
         print('========================================')
-        print('Successfully generated SBML')
+        print('Successfully plotted model fitting')
+
+        # output to sbml
+        if sbmlPath != None:
+            ioUtils.printSBML(
+                    bestModel.modelType,
+                    bestModel.expression,
+                    {key: val for key, val in zip(bestModel.thetaKey, bestModel.thetaVal)},
+                    inducerTags,
+                    reporterTag,
+                    inducerUnits,
+                    reporterUnits,
+                    sbmlPath,
+                    chassisType=chassisType
+            )
+            print('========================================')
+            print('Successfully generated SBML')
 
         # show as SBOL visuals
         plotUtils.plotDNACircuit(

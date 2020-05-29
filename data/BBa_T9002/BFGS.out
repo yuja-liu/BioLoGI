@@ -1,0 +1,268 @@
+========================================
+# 1 Model
+alpha
+Type = Constant
+Specs = 
+Parameters:
+alpha = 6.0581e+05
+Residue = 4.9517e+12
+IC = 627.2649
+Time elapsed:0.71
+
+========================================
+# 2 Model
+A*alpha + b
+Type = Inducible
+Specs = Linear
+Parameters:
+alpha = 5.1674e+09, b = 5.3404e+05
+Residue = 4.2662e+12
+IC = 625.6885
+Time elapsed:0.73
+
+========================================
+# 3 Model
+ 2      
+A *alpha
+--------
+ 2    2 
+A  + K  
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Activation
+Parameters:
+alpha = 9.9774e+05, K = -5.3275e-09
+Residue = 1.5757e+10
+IC = 491.2592
+Time elapsed:0.15
+
+========================================
+# 4 Model
+ 2          2  
+A *alpha + K *b
+---------------
+     2    2    
+    A  + K     
+Type = Inducible
+Specs = Quadratic, Basal_expression, Activation
+Parameters:
+alpha = 9.9814e+05, b = 1.6603e+04, K = 5.4320e-09
+Residue = 1.3418e+10
+IC = 489.4038
+Time elapsed:0.30
+
+========================================
+# 5 Model
+ n          n  
+A *alpha + K *b
+---------------
+     n    n    
+    A  + K     
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 9.9687e+05, b = 2.5299e+04, K = 6.4609e-09, n = 2.8365e+00
+Residue = 1.1900e+10
+IC = 488.5211
+Time elapsed:0.28
+
+========================================
+# 6 Model
+ n      
+A *alpha
+--------
+ n    n 
+A  + K  
+Type = Inducible
+Specs = Hill, No_basal_expression, Activation
+Parameters:
+alpha = 6.6752e+00, K = -1.0342e+03, n = 3.8126e-01
+Residue = nan
+IC = nan
+Time elapsed:0.21
+
+========================================
+# 7 Model
+A*alpha      
+------- + K*b
+A + K_I      
+-------------
+    A        
+ ------- + K 
+ A + K_I     
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 1.0191e+06, b = -2.5788e+04, K = 3.8314e-07, K_I = 1.2017e-02
+Residue = 9.7167e+10
+IC = 538.9193
+Time elapsed:0.15
+
+========================================
+# 8 Model
+      K_I*alpha
+K*b + ---------
+       A + K_I 
+---------------
+        K_I    
+  K + -------  
+      A + K_I  
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 6.0584e+05, b = 9.0637e+04, K = -1.9813e-02, K_I = 4.6705e-06
+Residue = 4.4458e+12
+IC = 630.6783
+Time elapsed:0.13
+
+========================================
+# 9 Model
+A*alpha
+-------
+ A + K 
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Activation
+Parameters:
+alpha = 1.0197e+06, K = 4.8898e-09
+Residue = 1.0160e+11
+IC = 535.9897
+Time elapsed:1.37
+
+========================================
+# 10 Model
+A*alpha + K*b
+-------------
+    A + K    
+Type = Inducible
+Specs = Michaelis_Menten, Basal_expression, Activation
+Parameters:
+alpha = 1.0191e+06, b = -2.5788e+04, K = 4.6037e-09
+Residue = 9.7167e+10
+IC = 536.9193
+Time elapsed:1.40
+
+========================================
+# 11 Model
+        A*alpha        
+-----------------------
+          /   A       \
+(A + K_I)*|------- + K|
+          \A + K_I    /
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 2.1161e+03, K = 6.5793e-05, K_I = -1.5168e+00
+Residue = 1.0745e+13
+IC = 649.8569
+Time elapsed:0.08
+
+========================================
+# 12 Model
+    K*b    
+-----------
+      K_I  
+K + -------
+    A + K_I
+Type = Inducible
+Specs = Michaelis_Menten, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 1.5599e+06, K = 1.0213e-07, K_I = 2.9375e-08
+Residue = 1.3756e+13
+IC = 655.7870
+Time elapsed:0.08
+
+========================================
+# 13 Model
+           2                
+          A *alpha          
+----------------------------
+           /     2         \
+         2 |    A         2|
+(A + K_I) *|---------- + K |
+           |         2     |
+           \(A + K_I)      /
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 1.8711e+03, K = -7.3861e-05, K_I = -7.1917e-01
+Residue = 1.3751e+13
+IC = 655.7773
+Time elapsed:0.11
+
+========================================
+# 14 Model
+       2       
+      K *b     
+---------------
+           2   
+ 2      K_I    
+K  + ----------
+              2
+     (A + K_I) 
+Type = Inducible
+Specs = Quadratic, No_basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+b = 1.9378e+06, K = 1.9844e-07, K_I = 1.8258e-11
+Residue = 1.0612e+13
+IC = 649.5588
+Time elapsed:0.09
+
+========================================
+# 15 Model
+  2              
+ A *alpha     2  
+---------- + K *b
+         2       
+(A + K_I)        
+-----------------
+      2          
+     A         2 
+ ---------- + K  
+          2      
+ (A + K_I)       
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 9.9814e+05, b = 1.6603e+04, K = 7.0204e-07, K_I = 7.7375e-03
+Residue = 1.3418e+10
+IC = 491.4037
+Time elapsed:0.27
+
+========================================
+# 16 Model
+          2      
+ 2     K_I *alpha
+K *b + ----------
+                2
+       (A + K_I) 
+-----------------
+            2    
+  2      K_I     
+ K  + ---------- 
+               2 
+      (A + K_I)  
+Type = Inducible
+Specs = Quadratic, Basal_expression, Inducer_Michaelis_Menten, Repression, Inducer_Repression, Inducer
+Parameters:
+alpha = 6.0784e+05, b = 9.0630e+04, K = -6.2823e-02, K_I = -3.8572e+02
+Residue = 4.9517e+12
+IC = 633.2649
+Time elapsed:0.29
+
+Total Run Time: 2.3102939128875732
+========================================
+Model Choice:
+ n          n  
+A *alpha + K *b
+---------------
+     n    n    
+    A  + K     
+Type = Inducible
+Specs = Hill, Basal_expression, Activation
+Parameters:
+alpha = 9.9687e+05, b = 2.5299e+04, K = 6.4609e-09, n = 2.8365e+00
+Residue = 1.1900e+10
+IC = 488.5211
+========================================
+Successfully generated SBML
+========================================
+Successfully generated SBOL visuals

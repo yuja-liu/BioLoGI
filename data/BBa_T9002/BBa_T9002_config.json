@@ -1,0 +1,20 @@
+{
+    "input": {
+        "inducerUnits": "M",
+        "reporterUnits": "molecules/cell",
+        "inducerTags": ["_3OC6HSL"],
+        "replicateTags": ["60 min", "62 min", "64 min"],
+        "reporterTag": "GFP",
+        "file": "data/BBa_T9002/BBa_T9002.tsv"
+    },
+    "solver": {
+        "paraEstimator": "BFGS",
+        "infoCriteria": "AIC",
+        "modelSet": "Activation_System"
+    },
+    "output": {
+        "sbmlFile": "data/BBa_T9002/model.sbml",
+        "sbolFile": "data/BBa_T9002/model.sbol.png",
+        "figureFile": "data/BBa_T9002/BBa_T9002.png"
+    }
+}

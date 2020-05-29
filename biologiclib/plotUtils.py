@@ -15,51 +15,67 @@ from biologiclib.modelBase import ModelType, ModelSpec
 import matplotlib
 matplotlib.use('TkAgg')    # dnaplotlib changes the backend to 'Agg'
 
-def plotModel2D(X, mu, std, theta, model, inputTag = "Inducer", outputTag = "FP", inputUnits = "M", outputUnits = "AU", save_fig = None):
+def plotModel2D(X, Y, std, theta, model, inputTag = "Inducer", outputTag = "FP", inputUnits = "M", outputUnits = "AU", save_fig = None):
     # Check input
     try:
         if len(X) != len(std):
-            raise Exception("Usage: plotModel(X, std, mu, theta, model). The dimension of X (%d), std (%d), and mu (%d) should be equal"\
-                    %(len(X), len(std), len(mu)))
-        if len(X) != len(mu):
-            raise Exception("Usage: plotModel(X, std, mu, theta, model). The dimension of X (%d), std (%d), and mu (%d) should be equal"\
-                    %(len(X), len(std), len(mu)))
+            raise Exception("Usage: plotModel(X, std, Y, theta, model). The dimension of X (%d), std (%d), and Y (%d) should be equal"\
+                    %(len(X), len(std), len(Y)))
+        if len(X) != len(Y):
+            raise Exception("Usage: plotModel(X, std, Y, theta, model). The dimension of X (%d), std (%d), and Y (%d) should be equal"\
+                    %(len(X), len(std), len(Y)))
     except ValueError:
-        raise Exception("Usage: plotModel(X, std, mu, theta, model), where X, std and mu should be iterators")
+        raise Exception("Usage: plotModel(X, std, Y, theta, model), where X, std and Y should be iterators")
 
-    try:
-        len(X[0])    # a hack to raise error if 1-dimensional
-        X1D = [x[0] for x in X]    # Extract the 1st dimension
+    # color scheme
+    palette = ['#F79F1F', '#A3CB38', '#1289A7', '#D980FA', '#B53471', '#EE5A24', '#009432', '#0652DD', '#9980FA', '#833471']
+    np.random.shuffle(np.array(palette))
+
+    nonZeros = []
+    X = np.squeeze(np.array(X))
+    try:    # check inducer 2D
+        len(X[0])
     except TypeError:
-        X1D = X
-    # 10% extrapolation on both ends, on a log scale
-    # Handling 0 input
-    lower = min(X1D)
-    if lower < 1E-12:    # consider as read zero
-        Xsorted = sorted(X1D)
-        for x in Xsorted:
-            if x >= 1E-12:
-                Xmin = np.log(x)
-                break
-    else:
-        Xmin = np.log(lower)
-    Xmax = np.log(max(X1D))
+        raise Exception("X should be 2D array")
+    zeroFlag = False
+    for row in X:
+        for x in row:
+            if x > 1E-12:
+                nonZeros.append(np.log(x))
+            else:
+                zeroFlag = True
+    Xmin, Xmax = min(nonZeros), max(nonZeros)
+
     try:
         plotBounds = (Xmin - 0.2 * (Xmax - Xmin), Xmax + 0.2 * (Xmax - Xmin))
     except NameError:    # Xmin does not exist, which is caused by all-zero inducer
         raise Exception("All-zero inducer input is not accepted")
     plotRange = np.exp(np.arange(*plotBounds, 1E-2))
-    if lower < 1E-12:    # give back the 0 at front
+    if zeroFlag:    # give back the 0 at front
         plotRange = np.insert(plotRange, 0, 0.0)
-    Y = model(plotRange.reshape(-1, 1), theta)
+    mu = model(plotRange.reshape(-1, 1), theta)
 
-    fig, ax = plt.subplots(figsize=(8, 6))
-    #ax.plot(X1D, mu, color="blue", marker='^', linestyle=None)
-    ax.plot(plotRange, Y, 'k-')
-    ax.errorbar(X1D, mu, yerr=std, fmt='o', color="blue")
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.plot(plotRange, mu, 'k-')
+    i= 0
+    for vx, vy, vstd in zip(X, Y, std):
+        ax.errorbar(vx, vy, yerr=vstd, fmt='o', color=palette[i], alpha=0.7)
+        i += 1
     ax.set_xlabel("[%s]/%s"%(inputTag, inputUnits))
     ax.set_ylabel("[%s]/%s"%(outputTag, outputUnits))
     ax.set_xscale("symlog", linthreshx = np.exp(plotBounds[0]))
+    # Hide the right and top spines
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    # Only show ticks on the left and bottom spines
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+    # remove the 0 tick label
+    xlim = ax.get_xlim()
+    ax.set_xticks(list(ax.get_xticks())[1:])
+    ax.set_xlim(xlim)
+    # set y tick label to scientific notation
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
     if save_fig is not None:
         # Then save as a file
         plt.savefig(save_fig, dpi=300, format="png")
@@ -74,8 +90,8 @@ def plotDNACircuit(modelType, modelSpecs, inducerTags, reporterTag, figPath=None
     '''
 
     # color scheme
-    palatte = ['#F79F1F', '#A3CB38', '#1289A7', '#D980FA', '#B53471']
-    np.random.shuffle(palatte)
+    palette = ['#F79F1F', '#A3CB38', '#1289A7', '#D980FA', '#B53471']
+    np.random.shuffle(palette)
 
     # components
     design = []
@@ -83,7 +99,7 @@ def plotDNACircuit(modelType, modelSpecs, inducerTags, reporterTag, figPath=None
     cur = 0
     if modelType == ModelType.Inducible or modelType == ModelType.Single_Input_Node:
         inPart = {'type': 'CDS', 'name': 'inPart', 'fwd': True,
-                'opts': {'linewidth': lw, 'color': palatte[cur], 'edge_color': 'black', 'x_extent': 24,
+                'opts': {'linewidth': lw, 'color': palette[cur], 'edge_color': 'black', 'x_extent': 24,
                     'label': inducerTags[0], 'label_style': 'italic', 'label_color': 'black', 'label_size': 15,    # label_size controls font size
                     'label_x_offset': -3, 'label_y_offset': 0
                 }
@@ -94,7 +110,7 @@ def plotDNACircuit(modelType, modelSpecs, inducerTags, reporterTag, figPath=None
         design += [inPromoter, inPart]
     elif modelType == ModelType.Duo_Input_Node:
         inPart1 = {'type': 'CDS', 'name': 'inPart1', 'fwd': True,
-                'opts': {'linewidth': lw, 'color': palatte[cur], 'edge_color': 'black', 'x_extent': 24,
+                'opts': {'linewidth': lw, 'color': palette[cur], 'edge_color': 'black', 'x_extent': 24,
                     'label': inducerTags[0], 'label_style': 'italic', 'label_color': 'black', 'label_size': 15,
                     'label_x_offset': -3, 'label_y_offset': 0
                 }
@@ -103,7 +119,7 @@ def plotDNACircuit(modelType, modelSpecs, inducerTags, reporterTag, figPath=None
         inPromoter1 = {'type': 'Promoter', 'name': 'pIn1', 'fwd': True,
                 'opts': {'linewidth': lw, 'color': 'black', 'label': ''}}
         inPart2 = {'type': 'CDS', 'name': 'inPart2', 'fwd': True,
-                'opts': {'linewidth': lw, 'color': palatte[cur], 'edge_color': 'black', 'x_extent': 24,
+                'opts': {'linewidth': lw, 'color': palette[cur], 'edge_color': 'black', 'x_extent': 24,
                     'label': inducerTags[1], 'label_style': 'italic', 'label_color': 'black', 'label_size': 15,
                     'label_x_offset': -3, 'label_y_offset': 0
                 }
@@ -113,7 +129,7 @@ def plotDNACircuit(modelType, modelSpecs, inducerTags, reporterTag, figPath=None
                 'opts': {'linewidth': lw, 'color': 'black', 'label': ''}}
         design += [inPromoter1, inPart1, inPromoter2, inPart2]
     outPart = {'type': 'CDS', 'name': 'outPart', 'fwd': True,
-            'opts': {'linewidth': lw, 'color': palatte[cur], 'edge_color': 'black', 'x_extent': 24,
+            'opts': {'linewidth': lw, 'color': palette[cur], 'edge_color': 'black', 'x_extent': 24,
                 'label': reporterTag, 'label_style': 'italic', 'label_color': 'black', 'label_size': 15,
                 'label_x_offset': -3, 'label_y_offset': 0
             }
