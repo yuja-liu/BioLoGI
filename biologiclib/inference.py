@@ -311,7 +311,7 @@ def selectModel(inducer, reporter, reporterStd,
 
     if parallel and modelSolver != ModelSolver.MCMC:    # mcmc conflicts with parallel computation
         # parallel model fitting
-        cpuCount = int(mp.cpu_count())    # Num of cpu cores
+        cpuCount = min(len(modelSet), int(mp.cpu_count()))    # Num of cpu cores
         pool = mp.Pool(cpuCount)    # A pool of processes
 
         for meta, duration in pool.imap_unordered(__fitModelWrapper,

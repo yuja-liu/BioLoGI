@@ -13,9 +13,9 @@ from matplotlib import pyplot as plt
 import numpy as np
 from biologiclib.modelBase import ModelType, ModelSpec
 import matplotlib
-matplotlib.use('TkAgg')    # dnaplotlib changes the backend to 'Agg'
+#matplotlib.use('TkAgg')    # dnaplotlib changes the backend to 'Agg'
 
-def plotModel2D(X, Y, std, theta, model, inputTag = "Inducer", outputTag = "FP", inputUnits = "M", outputUnits = "AU", save_fig = None):
+def plotModel2D(X, Y, std, theta, model, inputTag = "Inducer", outputTag = "FP", inputUnits = "M", outputUnits = "AU", save_fig = None, ax=None):
     # Check input
     try:
         if len(X) != len(std):
@@ -32,7 +32,7 @@ def plotModel2D(X, Y, std, theta, model, inputTag = "Inducer", outputTag = "FP",
     np.random.shuffle(np.array(palette))
 
     nonZeros = []
-    X = np.squeeze(np.array(X))
+    X = np.squeeze(np.array(X), axis=2)
     try:    # check inducer 2D
         len(X[0])
     except TypeError:
@@ -55,7 +55,10 @@ def plotModel2D(X, Y, std, theta, model, inputTag = "Inducer", outputTag = "FP",
         plotRange = np.insert(plotRange, 0, 0.0)
     mu = model(plotRange.reshape(-1, 1), theta)
 
-    fig, ax = plt.subplots(figsize=(6, 4))
+    axFlag = True
+    if ax == None:
+        fig, ax = plt.subplots(figsize=(6, 4))
+        axFlag = False
     ax.plot(plotRange, mu, 'k-')
     i= 0
     for vx, vy, vstd in zip(X, Y, std):
@@ -79,7 +82,7 @@ def plotModel2D(X, Y, std, theta, model, inputTag = "Inducer", outputTag = "FP",
     if save_fig is not None:
         # Then save as a file
         plt.savefig(save_fig, dpi=300, format="png")
-    else:
+    elif axFlag == False:
         plt.show()
 
 def plotDNACircuit(modelType, modelSpecs, inducerTags, reporterTag, figPath=None):
