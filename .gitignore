@@ -2,3 +2,4 @@ tests
 .ipynb_checkpoints
 .Rhistory
 data/GSE75748/
+scripts/__pycache__/

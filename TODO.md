@@ -32,4 +32,6 @@
 ~~2. Select promising studies~~
 3. download the papers and TPM of those
 ~~4. Impute the data~~
-5. Make the coefficient algorithm more efficient
+~~5. Make the coefficient algorithm more efficient~~
+
+
