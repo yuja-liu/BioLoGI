@@ -95,6 +95,7 @@ def genJac(inducer, reporter, reporterStd, expression, thetaList):
     jacFunc = [lambdify((symbols('A'), thetaSymbols), exp, "numpy") for exp in jacExp]
 
     # Avoid 0 in log
+    # This has caused big troubles when minimizing
     inducerSize = len(inducer)
     inducer = np.array(inducer)
     inducer = inducer.reshape(inducerSize, -1)    # convert 1D vector to 2D
