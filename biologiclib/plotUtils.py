@@ -11,11 +11,43 @@ Ploting utilities
 import dnaplotlib as dpl
 from matplotlib import pyplot as plt
 import numpy as np
-from biologiclib.modelBase import ModelType, ModelSpec
+from biologiclib.modelBase import ModelType, ModelSpec, genModel
+from biologiclib.inference import Solution
 import matplotlib
 #matplotlib.use('TkAgg')    # dnaplotlib changes the backend to 'Agg'
 
-def plotModel2D(X, Y, std, theta, model, inputTag = "Inducer", outputTag = "FP", inputUnits = "M", outputUnits = "AU", save_fig = None, ax=None):
+def plotHelper(inducer, reporter, modelMeta, inducer_name = '', reporter_name = '', reporterStd = None, ax = None, logScale = True, **plotKW):
+    # modelMeta should be of type Solution
+    if type(modelMeta) != Solution:
+        raise Exception("The argument modelMeta should be of type inference.Solution. Abort")
+
+    # reshape inducer & reporter
+    inducer, reporter = np.array(inducer), np.array(reporter)
+    inducer = inducer[:, 0]    # extract only 1 dimension
+    inducer, reporter = inducer.reshape(1, -1, 1), reporter.reshape(1, -1)
+    # also give a zero std deviation
+    std = np.zeros(reporter.shape)
+    # dictionize theta
+    theta = {key: val for key, val in zip(modelMeta.thetaKey, modelMeta.thetaVal)}
+    # get a function for the model
+    modelFunc = genModel(modelMeta.modelType, modelMeta.modelSpecs)[0][0]
+
+    plotModel2D(inducer, reporter, std,
+            theta,
+            modelFunc,
+            inputTag = inducer_name,
+            outputTag = reporter_name,
+            inputUnits = 'AU',
+            outputUnits = 'AU',
+            ax = ax,
+            logScale = logScale,
+            **plotKW)
+
+def plotModel2D(X, Y, std, theta, model, 
+        inputTag = "Inducer", outputTag = "FP", inputUnits = "M", outputUnits = "AU", 
+        logScale = True, save_fig = None, ax=None, **plotKW):
+    # TODO: the datastructure required by this functions is very different from others.
+    # A reconstruction is recommended
     # Check input
     try:
         if len(X) != len(std):
@@ -46,11 +78,14 @@ def plotModel2D(X, Y, std, theta, model, inputTag = "Inducer", outputTag = "FP",
                 zeroFlag = True
     Xmin, Xmax = min(nonZeros), max(nonZeros)
 
-    try:
-        plotBounds = (Xmin - 0.2 * (Xmax - Xmin), Xmax + 0.2 * (Xmax - Xmin))
-    except NameError:    # Xmin does not exist, which is caused by all-zero inducer
-        raise Exception("All-zero inducer input is not accepted")
-    plotRange = np.exp(np.arange(*plotBounds, 1E-2))
+    if logScale:
+        try:
+            plotBounds = (Xmin - 0.2 * (Xmax - Xmin), Xmax + 0.2 * (Xmax - Xmin))
+        except NameError:    # Xmin does not exist, which is caused by all-zero inducer
+            raise Exception("All-zero inducer input is not accepted")
+        plotRange = np.exp(np.arange(*plotBounds, 1E-2))
+    else:
+        plotRange = np.arange(max(np.exp(Xmin) - 0.5, 0.0), np.exp(Xmax) + 0.5, 1E-2)
     if zeroFlag:    # give back the 0 at front
         plotRange = np.insert(plotRange, 0, 0.0)
     mu = model(plotRange.reshape(-1, 1), theta)
@@ -59,14 +94,21 @@ def plotModel2D(X, Y, std, theta, model, inputTag = "Inducer", outputTag = "FP",
     if ax == None:
         fig, ax = plt.subplots(figsize=(6, 4))
         axFlag = False
-    ax.plot(plotRange, mu, 'k-')
+    ax.plot(plotRange, mu, 'g-')
     i= 0
+    if 'fmt' not in plotKW:
+        plotKW['fmt'] = 'o'
+    if 'alpha' not in plotKW:
+        plotKW['alpha'] = 0.7
     for vx, vy, vstd in zip(X, Y, std):
-        ax.errorbar(vx, vy, yerr=vstd, fmt='o', color=palette[i], alpha=0.7)
+        if 'color' not in plotKW:
+            plotKW['color'] = palette[i]
+        ax.errorbar(vx, vy, yerr=vstd, **plotKW)
         i += 1
     ax.set_xlabel("[%s]/%s"%(inputTag, inputUnits))
     ax.set_ylabel("[%s]/%s"%(outputTag, outputUnits))
-    ax.set_xscale("symlog", linthreshx = np.exp(plotBounds[0]))
+    if logScale:
+        ax.set_xscale("symlog", linthresh = np.exp(plotBounds[0]))
     # Hide the right and top spines
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)

@@ -161,8 +161,8 @@ def estimatePara(sse, X0, jacobian = None, constraints = None, method = ModelSol
     # SLSQP accepts constraints
     elif method == ModelSolver.SLSQP:
         res = minimize(sse, newX0, constraints = constraints, jac = jacobian, method = "SLSQP", options = {
-            "maxiter": 50,
-            "ftol": 1E-3,    # to avoid "ComplexInfinity" error
+            "maxiter": 100,
+            "ftol": 1E-4,
             "disp": False
         })
 
@@ -295,7 +295,7 @@ def __fitModel(modelType, modelSpecs,
 
     return meta, duration
 
-def selectModel(inducer, reporter, reporterStd,
+def selectModel(inducer, reporter, reporterStd = None,
         modelSolver = ModelSolver.N_M, modelSet = ModelSet.Simple_Inducible_Promoter, modelCriterion = ModelCriterion.AIC,
         quiet=True, parallel = True):
     '''

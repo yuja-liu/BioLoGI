@@ -30,8 +30,12 @@
 
 ~~1. examine the riken database~~
 ~~2. Select promising studies~~
-3. download the papers and TPM of those
+~~3. download the papers and TPM of those (currently stick on GSE75748)~~
 ~~4. Impute the data~~
 ~~5. Make the coefficient algorithm more efficient~~
+6. Test the outlier exclusion algorithm, and the correlation coefficient cutoff
+~~7. Fitting filtered GSE75748 to logic gates (how to do this efficiently?)~~
+8. Get a better name for BioLogic
+9. Apply parameter constraints
 
 
