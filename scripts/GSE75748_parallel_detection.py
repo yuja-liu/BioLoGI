@@ -98,4 +98,4 @@ if __name__ == "__main__":
     df_detected_logi['specs'] = df_detected_logi['specs'].map(
             lambda s: ', '.join(s))
     print(df_detected_logi.shape[0], "logic gates detected")
-    df_detected_logi.to_csv("../data/GSE75748/detected_logi.tsv", sep = "\t")
+    df_detected_logi.to_csv("../data/GSE75748/detected_logi.tsv", sep = "\t", index = False)
