@@ -67,7 +67,7 @@ def func(idx):
                             parallel = False)
     if ModelSpec.Linear not in best_model_2.modelSpecs\
     and len(best_model_2.modelSpecs) != 0:    # then non-linear model
-        return_models.append(tuple([idx[0], idx[1]] +\
+        return_models.append(tuple([idx[1], idx[0]] +\
                               list(extract_results(best_model_2, all_models_2))))
     return return_models
 

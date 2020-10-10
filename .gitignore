@@ -1,5 +1,9 @@
 tests
 .ipynb_checkpoints
 .Rhistory
-data/GSE75748/
+data/GSE75748/hg38_GSE75748.tpm
+data/GSE75748/h9_imputed.tsv
+data/GSE75748/GSE75748.txt
+data/GSE75748/detected_logi_bug.tsv
 scripts/__pycache__/
+scripts/fix_detected.py
