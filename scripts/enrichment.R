@@ -31,7 +31,7 @@ detected_gates_w_symbol <- detected_gates %>%
 
 # filter Delta AIC
 detected_gates_w_symbol <- detected_gates_w_symbol %>%
-  filter((Delta_AIC < -50) & (AIC < -1000))
+  filter((Delta_AIC < -20) & (AIC < -1000))
 
 # summarize inducer genes
 detected_gates_w_symbol <- detected_gates_w_symbol %>%
@@ -93,12 +93,13 @@ detected_gates_n <- detected_gates_w_coordinates %>%
 # plot
 detected_gates_n %>%
   head(50) %>%
-  ggplot(aes(x = reorder(symbol_inducer, desc(n_inducer)), y = n_inducer,
+  ggplot(aes(x = reorder(id_inducer, desc(n_inducer)), y = n_inducer,
              fill = type_inducer)) +
   geom_bar(stat = "identity") +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
         axis.title.x = element_blank()) +
+  scale_x_discrete(labels = detected_gates_n$symbol_inducer) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
   labs(y = "Number of ogic gates as an input", fill = "input RNA type")
 
@@ -108,7 +109,9 @@ detected_gates_w_coordinates %>%
   ggplot(aes(x = type_inducer, y = abs(Delta_AIC), fill = type_inducer)) +
   geom_violin() +
   theme_classic() +
-  labs(y = TeX("$\\Delta$AIC"))
+  labs(y = TeX("$\\Delta$AIC")) +
+  theme(axis.title.x = element_blank(),
+        legend.position = 'none')
   
 
 # Circos Plot

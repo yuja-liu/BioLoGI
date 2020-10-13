@@ -7,3 +7,4 @@ data/GSE75748/GSE75748.txt
 data/GSE75748/detected_logi_bug.tsv
 scripts/__pycache__/
 scripts/fix_detected.py
+.vscode

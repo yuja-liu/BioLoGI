@@ -108,7 +108,8 @@ def plotModel2D(X, Y, std, theta, model,
     ax.set_xlabel("[%s]/%s"%(inputTag, inputUnits))
     ax.set_ylabel("[%s]/%s"%(outputTag, outputUnits))
     if logScale:
-        ax.set_xscale("symlog", linthresh = np.exp(plotBounds[0]))
+        #ax.set_xscale("symlog", linthresh = np.exp(plotBounds[0] + 1))
+        ax.set_xscale("log")
     # Hide the right and top spines
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)

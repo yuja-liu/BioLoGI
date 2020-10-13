@@ -33,9 +33,13 @@
 ~~3. download the papers and TPM of those (currently stick on GSE75748)~~
 ~~4. Impute the data~~
 ~~5. Make the coefficient algorithm more efficient~~
-6. Test the outlier exclusion algorithm, and the correlation coefficient cutoff
+~~6. Test the outlier exclusion algorithm, and the correlation coefficient cutoff~~
 ~~7. Fitting filtered GSE75748 to logic gates (how to do this efficiently?)~~
-8. Get a better name for BioLogic
-9. Apply parameter constraints
+~~8. Get a better name for BioLogic~~
+~~9. Apply parameter constraints~~
+~~10. Find out how to draw the "ring graph"~~
+~~11. Find a good threshold for Delta AIC~~
+~~12. Categorize the inducer/reporter genes~~
+13. Draw example response curves
 
 
