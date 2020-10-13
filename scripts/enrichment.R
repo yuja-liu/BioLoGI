@@ -4,6 +4,8 @@ library(magrittr)
 library(ggplot2)
 library(biomaRt)
 library(tidyr)
+library(BioCircos)
+library(latex2exp)
 
 # load logic gates
 setwd("~/Documents/graduation_project/YABMSS")
@@ -27,44 +29,125 @@ detected_gates_w_symbol <- detected_gates %>%
   mutate(symbol_inducer = coalesce(symbol_inducer, id_inducer),
          symbol_reporter = coalesce(symbol_reporter, id_reporter))
 
+# filter Delta AIC
+detected_gates_w_symbol <- detected_gates_w_symbol %>%
+  filter((Delta_AIC < -50) & (AIC < -1000))
+
 # summarize inducer genes
-detected_gates_n <- detected_gates_w_symbol %>%
+detected_gates_w_symbol <- detected_gates_w_symbol %>%
   group_by(id_inducer, symbol_inducer) %>%
-  summarise(n_inducer = n()) %>%
+  mutate(n_inducer = n()) %>%
+  ungroup() %>%
   arrange(desc(n_inducer)) %>%
+  glimpse()
+
+# get gene coordinates
+mart = useEnsembl(biomart="ensembl", 
+                  dataset="hsapiens_gene_ensembl")
+coordinates_inducer <- getBM(attributes = c("ensembl_gene_id", "chromosome_name", 
+                                            "start_position", "end_position", "gene_biotype"),
+                              filters = "ensembl_gene_id",
+                              values = detected_gates %>% distinct(id_inducer) %>% pull(id_inducer),
+                              mart = mart)
+coordinates_reporter <- getBM(attributes = c("ensembl_gene_id", "chromosome_name", 
+                                            "start_position", "end_position", "gene_biotype"),
+                             filters = "ensembl_gene_id",
+                             values = detected_gates %>% distinct(id_reporter) %>% pull(id_reporter),
+                             mart = mart)
+detected_gates_w_coordinates <- detected_gates_w_symbol %>%
+  left_join(coordinates_inducer, by = c("id_inducer" = "ensembl_gene_id")) %>%
+  rename('chr_inducer' = "chromosome_name",
+         "start_inducer" = "start_position",
+         "end_inducer" = "end_position",
+         "type_inducer" = "gene_biotype") %>%
+  left_join(coordinates_reporter, by = c("id_reporter" = "ensembl_gene_id")) %>%
+  rename('chr_reporter' = "chromosome_name",
+         "start_reporter" = "start_position",
+         "end_reporter" = "end_position",
+         "type_reporter" = "gene_biotype") %>%
+  glimpse()
+
+# Biotype conforming
+biotype_conform <- function(biotype){
+  if(is.na(biotype))
+    return("others")
+  if (biotype %in% c("lncRNA", "misc_RNA",
+                     "snRNA", "snoRNA","scaRNA", "miRNA")) 
+    return(biotype)
+  if (grepl("pseudogene", biotype))
+    return("pseudogene")
+  if (biotype == "protein_coding" |
+      grepl("TR|IG", biotype))
+    return("protein_coding")
+  return("others")
+}
+detected_gates_w_coordinates <- detected_gates_w_coordinates %>%
+  mutate(type_inducer = sapply(type_inducer, biotype_conform)) %>%
+  mutate(type_reporter = sapply(type_reporter, biotype_conform))
+# join to detected_gates_n
+detected_gates_n <- detected_gates_w_coordinates %>%
+  group_by(id_inducer, symbol_inducer, n_inducer, type_inducer) %>%
+  distinct(id_inducer) %>%
   glimpse()
 
 # plot
 detected_gates_n %>%
-  head(20) %>%
-  ggplot(aes(x = reorder(symbol_inducer, desc(n_inducer)), y = n_inducer)) +
+  head(50) %>%
+  ggplot(aes(x = reorder(symbol_inducer, desc(n_inducer)), y = n_inducer,
+             fill = type_inducer)) +
   geom_bar(stat = "identity") +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
         axis.title.x = element_blank()) +
-  labs(y = "Number of involved logic gates as an input")
+  scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+  labs(y = "Number of ogic gates as an input", fill = "input RNA type")
 
-# Also sort the original table to see related reporters
-detected_gates_w_symbol <- detected_gates_w_symbol %>%
-  left_join(detected_gates_n, by = "id_inducer") %>%
-  arrange(desc(n_inducer))
+# also violin plot
+detected_gates_w_coordinates %>%
+  filter(type_inducer != 'others') %>%
+  ggplot(aes(x = type_inducer, y = abs(Delta_AIC), fill = type_inducer)) +
+  geom_violin() +
+  theme_classic() +
+  labs(y = TeX("$\\Delta$AIC"))
+  
 
-# biomRt gene symbol conversion. Removed due to temporary shutdown of ensembl
-#
-# mart = useMart(biomart="ensembl", dataset="hsapiens_gene_ensembl")
-# gene_symbols_inducer <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"),
-#                       filters = "ensembl_gene_id",
-#                       values = detected_gates$id_inducer %>% distinct(),
-#                       mart = mart)
-# gene_symbols_reporter <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"),
-#                               filters = "ensembl_gene_id",
-#                               values = detected_gates$id_reporter %>% distinct(),
-#                               mart = mart)
-# detected_gates_w_symbol <- detected_gates %>%
-#   left_join(gene_symbols_inducer, by = c("id_inducer" = "ensembl_gene_id")) %>%
-#   rename(symbol_inducer = hgnc_symbol) %>%
-#   mutate(symbol_inducer = replace(symbol_inducer, symbol_inducer == "", NA)) %>%
-#   left_join(gene_symbols_reporter, by = c("id_reporter" = "ensembl_gene_id")) %>%
-#   rename(symbol_reporter = hgnc_symbol) %>%
-#   mutate(symbol_reporter = replace(symbol_reporter, symbol_reporter == "", NA)) %>%
-#   glimpse()
+# Circos Plot
+selected_RNA_itrxn <- detected_gates_w_coordinates %>%
+  dplyr::filter(id_inducer == "ENSG00000235910") %>%
+  drop_na()
+track_list = BioCircosLinkTrack("RNA-RNA interaction",
+                                # add a zero-length link to label the start node
+                                gene1Chromosomes = c(selected_RNA_itrxn$chr_inducer, 
+                                                     selected_RNA_itrxn$chr_inducer[1]),
+                                gene1Starts = c(selected_RNA_itrxn$start_inducer,
+                                                selected_RNA_itrxn$start_inducer[1]),
+                                gene1Ends = c(selected_RNA_itrxn$end_inducer,
+                                              selected_RNA_itrxn$end_inducer[1]),
+                                gene2Chromosomes = c(selected_RNA_itrxn$chr_reporter,
+                                                     selected_RNA_itrxn$chr_inducer[1]),
+                                gene2Starts = c(selected_RNA_itrxn$start_reporter,
+                                                selected_RNA_itrxn$start_inducer[1]),
+                                gene2Ends = c(selected_RNA_itrxn$end_reporter,
+                                              selected_RNA_itrxn$end_inducer[1]),
+                                maxRadius = 0.9,
+                                labels = c(selected_RNA_itrxn$symbol_reporter,
+                                           selected_RNA_itrxn$symbol_inducer[1]),
+                                width = "0.05em",
+                                labelSize = "0.5em",
+                                labelPadding = 70)
+track_list = track_list + BioCircosBarTrack("Delta AIC",
+                                chromosomes = selected_RNA_itrxn$chr_reporter,
+                                starts = selected_RNA_itrxn$start_reporter,
+                                # using fake ends to achieve constant width
+                                ends = selected_RNA_itrxn$start_reporter + 2000000,
+                                values = abs(selected_RNA_itrxn$Delta_AIC),
+                                maxRadius = 0.9,
+                                minRadius = 1.0,
+                                range = c(0, 200),
+                                color = 'red')
+BioCircos(track_list,
+          genomeFillColor = "PuOr",
+          chrPad = 0.02,
+          displayGenomeBorder = FALSE,
+          genomeTicksDisplay = FALSE,
+          yChr = FALSE)

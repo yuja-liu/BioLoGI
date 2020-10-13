@@ -63,7 +63,7 @@ def func(idx):
     # fitting, switch inducer and reporter
     best_model_2, all_models_2 = selectModel(count_reporter.reshape(-1, 1), count_inducer,
                             modelSolver = ModelSolver.SLSQP,
-                            modelSet = ModelSet.Activation_System,
+                            modelSet = ModelSet.model_set,
                             parallel = False)
     if ModelSpec.Linear not in best_model_2.modelSpecs\
     and len(best_model_2.modelSpecs) != 0:    # then non-linear model
