@@ -63,7 +63,7 @@ def func(idx):
     # fitting, switch inducer and reporter
     best_model_2, all_models_2 = selectModel(count_reporter.reshape(-1, 1), count_inducer,
                             modelSolver = ModelSolver.SLSQP,
-                            modelSet = ModelSet.model_set,
+                            modelSet = model_set,
                             parallel = False)
     if ModelSpec.Linear not in best_model_2.modelSpecs\
     and len(best_model_2.modelSpecs) != 0:    # then non-linear model
@@ -74,8 +74,8 @@ def func(idx):
 if __name__ == "__main__":
     # load filtered gene pairs
     filtered_indices = pd.read_csv("../data/GSE75748/filtered_indices.tsv", sep = '\t')
-    NUM = 10
-    PROCESSES = cpu_count()
+    NUM = filtered_indices.shape[0]
+    PROCESSES = 14
     
     with Pool(PROCESSES) as pool:
         start_time = time.time()
