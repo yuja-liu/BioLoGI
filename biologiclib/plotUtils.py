@@ -10,11 +10,67 @@ Ploting utilities
 
 import dnaplotlib as dpl
 from matplotlib import pyplot as plt
+from matplotlib import cm
 import numpy as np
 from biologiclib.modelBase import ModelType, ModelSpec, genModel
 from biologiclib.inference import Solution
 import matplotlib
-#matplotlib.use('TkAgg')    # dnaplotlib changes the backend to 'Agg'
+matplotlib.use('TkAgg')    # dnaplotlib changes the backend to 'Agg'
+
+def plotHelper3D(inducer, reporter, modelMeta, inducer_name = ('', ''), reporter_name = '', 
+        reporterStd = None, ax = None, logScale = True, **plotKW):
+    if type(modelMeta) != Solution:
+        raise Exception("The argument modelMeta should be of type inference.Solution. Abort")
+
+    # convert input to np.array
+    inducer = np.array(inducer)
+    reporter = np.array(reporter)
+    # convert inducer to row vector
+    inducer = inducer.transpose()
+    # get plot axis if needed
+    if ax == None:
+        fig = plt.figure(figsize = (8, 6))
+        ax = fig.gca(projection='3d')
+    # scatter
+    if 's' not in plotKW:
+        plotKW['s'] = 10
+    ax.scatter(*inducer, reporter, **plotKW)
+    # rotate to let x=0, y=0 pointing out
+    ax.view_init(30, -135)
+    ax.set_xlabel(inducer_name[0])
+    ax.set_ylabel(inducer_name[1])
+    ax.set_zlabel(reporter_name)
+
+    # surface
+    # get plot range
+    def get_plot_range(X):
+        MARGIN = 0.1
+        x_range = max(X) - min(X)
+        x_min = max(0, min(X) - x_range * MARGIN)
+        x_max = max(X) + x_range * MARGIN
+        return x_min, x_max
+    grid_x = np.linspace(*get_plot_range(inducer[0]), 50)
+    grid_y = np.linspace(*get_plot_range(inducer[1]), 50)
+    grid = np.meshgrid(grid_x, grid_y)
+    grid_rearrange =\
+            np.vstack((grid[0].reshape(1, -1, order = 'C'),
+            grid[1].reshape(1, -1, order = 'C'))).transpose()
+    # dictionize theta
+    theta = {key: val for key, val in zip(modelMeta.thetaKey, modelMeta.thetaVal)}
+    # get a function for the model
+    modelFunc = genModel(modelMeta.modelType, modelMeta.modelSpecs)[0][0]
+    mu = modelFunc(grid_rearrange, theta)
+    mu = mu.reshape(grid[0].shape, order = 'C')
+    ax.plot_surface(*grid, mu,
+            cmap = cm.coolwarm,
+            linewidth = 0,
+            antialiased = True,
+            alpha = 0.5)
+    # axis log scale
+    if logScale:
+        ax.set_xscale('symlog', linthresh = 1E-3)
+        ax.set_yscale('symlog', linthresh = 1E-3)
+    plt.show()
 
 def plotHelper(inducer, reporter, modelMeta, inducer_name = '', reporter_name = '', reporterStd = None, ax = None, logScale = True, **plotKW):
     # modelMeta should be of type Solution

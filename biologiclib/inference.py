@@ -15,7 +15,7 @@ from sys import stdout
 from enum import Enum
 from scipy.optimize import minimize, differential_evolution
 from functools import reduce
-from biologiclib import ioUtils, modelBase, plotUtils
+from biologiclib import ioUtils, modelBase
 from biologiclib.modelBase import ModelType, ModelSpec, ModelSet
 #from biologiclib.modelBase import jacBase
 from sympy import symbols, lambdify, diff, pretty
@@ -82,17 +82,27 @@ def genJac(inducer, reporter, reporterStd, expression, thetaList):
     except TypeError:
         raise Exception("Usage: genJac(inducer, reporter, reporterStd, expression, thetaList), where inducer, reporter, and reporterStd should be iterable")
 
+    # test single or dual input
+    # TODO: this test is very nasty!
+    # in fact, the code of generating Jacobian and handling vectors is a diaster
+    dualFlag = 'alpha_1' in thetaList or 'alpha_4' in thetaList
     # Claim symbols
     thetaSymbols = symbols(thetaList)
     # Original function lambdify
-    PstFunc = lambdify((symbols('A'), thetaSymbols), expression, "numpy")
+    if not dualFlag:
+        PstFunc = lambdify((symbols('A'), thetaSymbols), expression, "numpy")
+    else:
+        PstFunc = lambdify((symbols('A_1 A_2'), thetaSymbols), expression, "numpy")
     # Symbolic derivitives
     key = str(expression)
     #if key in jacBase:
     #    jacExp = jacBase[key]    # shortcut if initialized
     jacExp = [diff(expression, x) for x in thetaSymbols]
     # Derivitives lambdify
-    jacFunc = [lambdify((symbols('A'), thetaSymbols), exp, "numpy") for exp in jacExp]
+    if not dualFlag:
+        jacFunc = [lambdify((symbols('A'), thetaSymbols), exp, "numpy") for exp in jacExp]
+    else:
+        jacFunc = [lambdify((symbols('A_1 A_2'), thetaSymbols), exp, "numpy") for exp in jacExp]
 
     # Avoid 0 in log
     # This has caused big troubles when minimizing
@@ -116,11 +126,12 @@ def genJac(inducer, reporter, reporterStd, expression, thetaList):
         for i in range(len(thetaList)):
             # derivitive of sse is a linear combinition
             dSSE = 2 * sum(
-                [(PstFunc(A[0], theta) - x) * jacFunc[i](A[0], theta)\
+                [(PstFunc(A, theta) - x) * jacFunc[i](A, theta)\
                     for A, x in zip(inducer, reporter)]
             )
             jac.append(dSSE)
-        return np.array(jac)    # Some scipy optimization funcs, e.g. BFGS, insist on using np.array jacobian
+        # Some scipy optimization funcs, e.g. BFGS, insist on using np.array jacobian
+        return np.array(jac).squeeze()    
 
     # Return
     return jacobian

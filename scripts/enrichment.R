@@ -84,6 +84,10 @@ biotype_conform <- function(biotype){
 detected_gates_w_coordinates <- detected_gates_w_coordinates %>%
   mutate(type_inducer = sapply(type_inducer, biotype_conform)) %>%
   mutate(type_reporter = sapply(type_reporter, biotype_conform))
+# save to file
+detected_gates_w_coordinates %>% write.table(
+  "data/GSE75748/detected_logi_w_coor.tsv",
+  sep = '\t', row.names = FALSE)
 # join to detected_gates_n
 detected_gates_n <- detected_gates_w_coordinates %>%
   group_by(id_inducer, symbol_inducer, n_inducer, type_inducer) %>%
@@ -116,7 +120,7 @@ detected_gates_w_coordinates %>%
 
 # Circos Plot
 selected_RNA_itrxn <- detected_gates_w_coordinates %>%
-  dplyr::filter(id_inducer == "ENSG00000235910") %>%
+  dplyr::filter(id_inducer == "ENSG00000141431") %>%
   drop_na()
 track_list = BioCircosLinkTrack("RNA-RNA interaction",
                                 # add a zero-length link to label the start node

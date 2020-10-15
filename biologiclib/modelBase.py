@@ -14,17 +14,19 @@ import warnings
 import numpy as np
 
 # ModelType includes basic types. Constant: constitutive expression; Inducible or Single_Input_Node: inducible promoter system; Due_Input_Node: promoter w/ 2 TFs, or so called "logic gates"
-ModelType = Enum('ModelType', ('Constant', 'Inducible', 'Duo_Input_Node', 'Single_Input_Node'))
+ModelType = Enum('ModelType', ('Constant', 'Inducible', 'Dual_Input_Node', 'Single_Input_Node'))
 
 # ModelSpec includes model specifications, the combinations of which builds the model
 ModelSpec = Enum('ModelSpec', (
     'Linear', 'Michaelis_Menten', 'M_M', 'Quadratic', 'Dimerized', 'Hill',
     'Activation', 'Repression', 'Basal_expression', 'No_basal_expression',
     'Inducer', 'Inducer_Michaelis_Menten', 'Inducer_Quadratic', 'Inducer_Activation', 'Inducer_Repression',
-    'AND', 'OR', 'IMPLY12', 'IMPLY21', 'NOR', 'NAND', 'Duo_Activation', 'Duo_Repression'))
+    'AND', 'OR', 'IMPLY12', 'IMPLY21', 'NOR', 'NAND', 'Dual_Activation', 'Dual_Repression'))
 
 # model set constants
-ModelSet = Enum("ModelSet", ("Simple_Inducible_Promoter", "Inducible_Promoter_with_Inducer", "Activation_System", "Repression_System", "All", "Minimum"))
+ModelSet = Enum("ModelSet", ("Simple_Inducible_Promoter", "Inducible_Promoter_with_Inducer", 
+    "Activation_System", "Repression_System", "All", "Minimum",
+    "Dual_Input", "Dual_Activation", "Dual_Repression", "Dual_Imply"))
 
 # CVSet is the set of all controlled vocabulary
 CVSet = {ModelType, ModelSpec, ModelSet}
@@ -95,7 +97,9 @@ def genEquation(modelType, modelSpecs=()):
         alpha, A = symbols('alpha A')
         # for each model, we define P_st (steady-state protein level), thetaKeys (the name of theta),
         # and constraints (equity and inequity)
-        P_st = alpha + Mul(A, 0, evaluate=False)    # A hack to preserve the dimension if input is a vector
+        #P_st = alpha + Mul(A, 0, evaluate=False)    # A hack to preserve the dimension if input is a vector
+        # the above hack is now uncessary and causes trouble
+        P_st = alpha
         thetaKeys = ['alpha']
         constraint = {
             "type": "ineq",
@@ -188,97 +192,127 @@ def genEquation(modelType, modelSpecs=()):
                     }
                     constraints.append(constraint)
 
-    elif modelType == ModelType.Duo_Input_Node:
-        # The general 2-input model
-        A_1, A_2, K_1, K_2, n_1, n_2, alpha_1, alpha_2, alpha_3, alpha_4 = \
-                symbols('A_1 A_2 K_1 K_2 n_1 n_2 alpha_1 alpha_2 alpha_3 alpha_4')
-        P_st = (alpha_1 * (A_1/K_1) ** n_1 * (A_2/K_2) ** n_2 + alpha_2 * (A_1/K_1) ** n_1 + alpha_3 * (A_2/K_2) ** n_2 + alpha_4) /\
-                ((A_1/K_1) ** n_1 * (A_2/K_2) ** n_2 + (A_1/K_1) ** n_1 + (A_2/K_2) ** n_2 + 1)
-        thetaKeys = ['K_1', 'K_2', 'n_1', 'n_2', 'alpha_1', 'alpha_2', 'alpha_3', 'alpha_4']
-        # AND gate
-        if ModelSpec.AND in modelSpecs:
-            P_st = P_st.subs([(alpha_2, 0), (alpha_3, 0), (alpha_4, 0)])
-            thetaKeys = ['K_1', 'K_2', 'n_1', 'n_2', 'alpha_1']
+    elif modelType == ModelType.Dual_Input_Node:
+        # Linear (null) model
+        if ModelSpec.Linear in modelSpecs:
+            A_1, A_2, alpha_1, alpha_2, alpha_3 =\
+                    symbols('A_1 A_2 alpha_1 alpha_2 alpha_3')
+            P_st = alpha_1 * A_1 + alpha_2 * A_2 + alpha_3
+            thetaKeys = ["alpha_1", "alpha_2", "alpha_3"]
+            # no constraints
+        else:
+            # The general 2-input model
+            A_1, A_2, K_1, K_2, n_1, n_2, alpha_1, alpha_2, alpha_3, alpha_4 = \
+                    symbols('A_1 A_2 K_1 K_2 n_1 n_2 alpha_1 alpha_2 alpha_3 alpha_4')
+            P_st = (alpha_1 * (A_1/K_1) ** n_1 * (A_2/K_2) ** n_2 + alpha_2 * (A_1/K_1) ** n_1 + alpha_3 * (A_2/K_2) ** n_2 + alpha_4) /\
+                    ((A_1/K_1) ** n_1 * (A_2/K_2) ** n_2 + (A_1/K_1) ** n_1 + (A_2/K_2) ** n_2 + 1)
+            thetaKeys = ['K_1', 'K_2', 'n_1', 'n_2', 'alpha_1', 'alpha_2', 'alpha_3', 'alpha_4']
+            # AND gate
+            if ModelSpec.AND in modelSpecs:
+                P_st = P_st.subs([(alpha_2, 0), (alpha_3, 0), (alpha_4, 0)])
+                thetaKeys = ['K_1', 'K_2', 'n_1', 'n_2', 'alpha_1']
 
-        # OR gate
-        elif ModelSpec.OR in modelSpecs:
-            P_st = P_st.subs(alpha_4, 0)
-            thetaKeys.remove('alpha_4')
-
-        # 1 IMPLY 2 gate
-        elif ModelSpec.IMPLY12 in modelSpecs:
-            P_st = P_st.subs(alpha_3, 0)
-            thetaKeys.remove('alpha_3')
-
-        # 2 IMPLY 1 gate
-        elif ModelSpec.IMPLY21 in modelSpecs:
-            P_st = P_st.subs(alpha_2, 0)
-            thetaKeys.remove('alpha_2')
-
-        # NOR gate
-        elif ModelSpec.NOR in modelSpecs:
-            P_st = P_st.subs([(alpha_1, 0), (alpha_2, 0), (alpha_3, 0)])
-            thetaKeys = ['K_1', 'K_2', 'n_1', 'n_2', 'alpha_4']
-
-        # NAND gate
-        elif ModelSpec.NAND in modelSpecs:
-            P_st = P_st.subs(alpha_1, 0)
-            thetaKeys.remove('alpha_1')
-
-        # General activation
-        if ModelSpec.Duo_Activation in modelSpecs:
-            i1, i2, i3, i4 = thetaKeys.index('alpha_1'), thetaKeys.index('alpha_2'),\
-                    thetaKeys.index('alpha_3'), thetaKeys.index('alpha_4')
-            con1 = {
-                    "type": "ineq",
-                    "fun": lambda x: x[i1] - x[i2]
-            }
-            con2 = {
-                    "type": "ineq",
-                    "fun": lambda x: x[i1] - x[i3]
-            }
-            con3 = {
-                    "type": "ineq",
-                    "fun": lambda x: x[i2] - x[i4]
-            }
-            con4 = {
-                    "type": "ineq",
-                    "fun": lambda x: x[i3] - x[i4]
-            }
-            constraints += [con1, con2, con3, con4]
-        
-        # General Repression
-        elif ModelSpec.Duo_Repression in modelSpecs:
-            i1, i2, i3, i4 = thetaKeys.index('alpha_1'), thetaKeys.index('alpha_2'),\
-                    thetaKeys.index('alpha_3'), thetaKeys.index('alpha_4')
-            con1 = {
-                    "type": "ineq",
-                    "fun": lambda x: x[i4] - x[i2]
-            }
-            con2 = {
-                    "type": "ineq",
-                    "fun": lambda x: x[i4] - x[i3]
-            }
-            con3 = {
-                    "type": "ineq",
-                    "fun": lambda x: x[i2] - x[i1]
-            }
-            con4 = {
-                    "type": "ineq",
-                    "fun": lambda x: x[i3] - x[i1]
-            }
-            constraints += [con1, con2, con3, con4]
-
-        # General constraints
-        # TODO: do alpha_i have to be non-negative?
-        for key in ['K_1', 'K_2', 'n_1', 'n_2']:
-            if key in thetaKeys:
-                idx = thetaKeys.index(key)
-                constraint = {
+            # OR gate
+            elif ModelSpec.OR in modelSpecs:
+                P_st = P_st.subs(alpha_4, 0)
+                thetaKeys.remove('alpha_4')
+                i1, i2, i3 = thetaKeys.index('alpha_1'),\
+                        thetaKeys.index('alpha_2'), thetaKeys.index('alpha_3')
+                con1 = {
                         "type": "ineq",
-                        "fun": lambda x: x[idx]
+                        "fun": lambda x: x[i1] - x[i2]
                 }
-                constraints.append(constraint)
+                con2 = {
+                        "type": "ineq",
+                        "fun": lambda x: x[i1] - x[i3]
+                }
+                constraints += [con1, con2]
+
+            # 1 IMPLY 2 gate
+            elif ModelSpec.IMPLY12 in modelSpecs:
+                P_st = P_st.subs(alpha_3, 0)
+                thetaKeys.remove('alpha_3')
+
+            # 2 IMPLY 1 gate
+            elif ModelSpec.IMPLY21 in modelSpecs:
+                P_st = P_st.subs(alpha_2, 0)
+                thetaKeys.remove('alpha_2')
+
+            # NOR gate
+            elif ModelSpec.NOR in modelSpecs:
+                P_st = P_st.subs([(alpha_1, 0), (alpha_2, 0), (alpha_3, 0)])
+                thetaKeys = ['K_1', 'K_2', 'n_1', 'n_2', 'alpha_4']
+
+            # NAND gate
+            elif ModelSpec.NAND in modelSpecs:
+                P_st = P_st.subs(alpha_1, 0)
+                thetaKeys.remove('alpha_1')
+                i2, i3, i4 = thetaKeys.index('alpha_2'),\
+                        thetaKeys.index('alpha_3'), thetaKeys.index('alpha_4')
+                con1 = {
+                        "type": "ineq",
+                        "fun": lambda x: x[i4] - x[i2]
+                }
+                con2 = {
+                        "type": "ineq",
+                        "fun": lambda x: x[i4] - x[i3]
+                }
+                constraints += [con1, con2]
+
+            # General activation
+            if ModelSpec.Dual_Activation in modelSpecs:
+                i1, i2, i3, i4 = thetaKeys.index('alpha_1'), thetaKeys.index('alpha_2'),\
+                        thetaKeys.index('alpha_3'), thetaKeys.index('alpha_4')
+                con1 = {
+                        "type": "ineq",
+                        "fun": lambda x: x[i1] - x[i2]
+                }
+                con2 = {
+                        "type": "ineq",
+                        "fun": lambda x: x[i1] - x[i3]
+                }
+                con3 = {
+                        "type": "ineq",
+                        "fun": lambda x: x[i2] - x[i4]
+                }
+                con4 = {
+                        "type": "ineq",
+                        "fun": lambda x: x[i3] - x[i4]
+                }
+                constraints += [con1, con2, con3, con4]
+            
+            # General Repression
+            elif ModelSpec.Dual_Repression in modelSpecs:
+                i1, i2, i3, i4 = thetaKeys.index('alpha_1'), thetaKeys.index('alpha_2'),\
+                        thetaKeys.index('alpha_3'), thetaKeys.index('alpha_4')
+                con1 = {
+                        "type": "ineq",
+                        "fun": lambda x: x[i4] - x[i2]
+                }
+                con2 = {
+                        "type": "ineq",
+                        "fun": lambda x: x[i4] - x[i3]
+                }
+                con3 = {
+                        "type": "ineq",
+                        "fun": lambda x: x[i2] - x[i1]
+                }
+                con4 = {
+                        "type": "ineq",
+                        "fun": lambda x: x[i3] - x[i1]
+                }
+                constraints += [con1, con2, con3, con4]
+
+            # General constraints
+            # TODO: do alpha_i have to be non-negative?
+            for key in ['K_1', 'K_2', 'n_1', 'n_2', 'alpha_1', 'alpha_2', 'alpha_3', 'alpha_4']:
+                if key in thetaKeys:
+                    idx = thetaKeys.index(key)
+                    constraint = {
+                            "type": "ineq",
+                            "fun": lambda x: x[idx]
+                    }
+                    constraints.append(constraint)
 
     eqnFunc, eqnStr = __lambdifyEqn(P_st, thetaKeys, modelType)
     return (eqnFunc, eqnStr, P_st), thetaKeys, constraints
@@ -296,7 +330,7 @@ def __lambdifyEqn(eqn, thetaKeys, modelType):
     if modelType == ModelType.Constant or\
             modelType == ModelType.Inducible or modelType == ModelType.Single_Input_Node:
         eqnFunc = lambdify((A, symbols(thetaKeys)), eqn, 'numpy')
-    elif modelType == ModelType.Duo_Input_Node:
+    elif modelType == ModelType.Dual_Input_Node:
         eqnFunc = lambdify(((A_1, A_2), symbols(thetaKeys)), eqn, 'numpy')
     
     return eqnFunc, eqnStr
@@ -370,7 +404,7 @@ def __modelParaInterpreter(modelType, modelFunc, thetaKeys):
         # Check input
         if modelType == ModelType.Inducible or modelType == ModelType.Single_Input_Node:
             numInput = 1
-        elif modelType == ModelType.Duo_Input_Node:
+        elif modelType == ModelType.Dual_Input_Node:
             numInput = 2
         elif modelType == ModelType.Constant:
             numInput = 0
@@ -437,15 +471,16 @@ def __modelSpecsInspector(modelType, modelSpecs):
             if keyword in modelSpecs and ModelSpec.Inducer not in modelSpecs:
                 raise Exception('Usage: genModel(modelType, modelSpecs), in modelSpecs, "%s" depends on keyword "Inducer"'%keyword.name)
 
-    elif modelType == ModelType.Duo_Input_Node:
+    elif modelType == ModelType.Dual_Input_Node:
         # Inducible/Constant keyword are not compatible with duo input
-        duoInputKeys = [ModelSpec.AND, ModelSpec.OR, ModelSpec.IMPLY12,
+        duoInputKeys = [ModelSpec.Linear,
+                ModelSpec.AND, ModelSpec.OR, ModelSpec.IMPLY12,
                 ModelSpec.IMPLY21, ModelSpec.NOR, ModelSpec.NAND,
-                ModelSpec.Duo_Activation, ModelSpec.Duo_Repression]
+                ModelSpec.Dual_Activation, ModelSpec.Dual_Repression]
         for keyword in modelSpecs:
             if keyword not in duoInputKeys:
                 raise Exception('Usage: genModel(modelType, modelSpecs), \
-                        where model-spec "%s" is not compatible with model-type "Duo_Input_Node"'%keyword.name)
+                        where model-spec "%s" is not compatible with model-type "Dual_Input_Node"'%keyword.name)
         # For duo-input-allowed specifications, non can co-exist
         if len(modelSpecs) > 1:
             raise Exception('Usage: genModel(modelType, modelSpecs), where model-spec "%s" and "%s" cannot coexist'\
@@ -529,7 +564,7 @@ def genModelSet(modelSet):
 
     # A small set for testing
     elif modelSet == ModelSet.Minimum:
-        models += [(ModelType.Constant, ()),
+        models = [(ModelType.Constant, ()),
                 (ModelType.Inducible, (ModelSpec.Linear,)),
                 (ModelType.Inducible, (ModelSpec.Michaelis_Menten, ModelSpec.Activation, ModelSpec.Basal_expression)),
                 (ModelType.Inducible, (ModelSpec.Michaelis_Menten, ModelSpec.Repression, ModelSpec.Basal_expression)),
@@ -537,5 +572,39 @@ def genModelSet(modelSet):
                 (ModelType.Inducible, (ModelSpec.Quadratic, ModelSpec.Repression, ModelSpec.Basal_expression)),
                 (ModelType.Inducible, (ModelSpec.Hill, ModelSpec.Activation, ModelSpec.Basal_expression)),
                 (ModelType.Inducible, (ModelSpec.Hill, ModelSpec.Repression, ModelSpec.Basal_expression))]
+
+    # Dual input modelset
+    elif modelSet == ModelSet.Dual_Input:
+        models = [(ModelType.Constant, ()),
+                (ModelType.Dual_Input_Node, (ModelSpec.Linear,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.AND,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.OR,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.IMPLY12,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.IMPLY21,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.NAND,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.NOR,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.Dual_Activation,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.Dual_Repression,))]
+    elif modelSet == ModelSet.Dual_Activation:
+        models = [(ModelType.Constant, ()),
+                (ModelType.Dual_Input_Node, (ModelSpec.Linear,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.AND,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.OR,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.IMPLY12,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.IMPLY21,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.Dual_Activation,))]
+    elif modelSet == ModelSet.Dual_Repression:
+        models = [(ModelType.Constant, ()),
+                (ModelType.Dual_Input_Node, (ModelSpec.Linear,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.IMPLY12,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.IMPLY21,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.NAND,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.NOR,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.Dual_Repression,))]
+    elif modelSet == ModelSet.Dual_Imply:
+        models = [(ModelType.Constant, ()),
+                (ModelType.Dual_Input_Node, (ModelSpec.Linear,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.IMPLY12,)),
+                (ModelType.Dual_Input_Node, (ModelSpec.IMPLY21,))]
 
     return models
