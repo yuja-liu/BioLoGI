@@ -1,0 +1,14 @@
+                      n
+ n           /  A*I  \ 
+K *b + alpha*|-------| 
+             \I + K_I/ 
+-----------------------
+      /              n\
+      | n   /  A*I  \ |
+ beta*|K  + |-------| |
+      \     \I + K_I/ /
+Type = Inducible
+Specs = Hill, Basal_expression, Inducer_Michaelis_Menten, Activation, Inducer_Activation, Inducer
+Parameters:
+alpha = 2.2075008428793392, beta = 0.03411241178321088, b = 0.0015438590237552732, K = 0.0013900301015426293, n = 2.434265912707475, A = 0.0007830050667632467, K_I = 0.0024753174437969847
+IC = -11.894448
