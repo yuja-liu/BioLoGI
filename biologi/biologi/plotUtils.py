@@ -15,7 +15,10 @@ import numpy as np
 from biologi.modelBase import ModelType, ModelSpec, genModel
 from biologi.inference import Solution
 import matplotlib
-matplotlib.use('TkAgg')    # dnaplotlib changes the backend to 'Agg'
+try:
+    matplotlib.use('TkAgg')    # dnaplotlib changes the backend to 'Agg'
+except ImportError:    # headless platform
+    pass
 
 def plotHelper3D(inducer, reporter, modelMeta, inducer_name = ('', ''), reporter_name = '', 
         reporterStd = None, ax = None, logScale = True, **plotKW):
