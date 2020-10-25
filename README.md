@@ -10,7 +10,7 @@ of logic gate-like interaction in syntheic genetic circuits and human transcript
 Install by [pip](https://pip.pypa.io/en/stable/):
 
 ```sh
-pip install https://github.com/RandolphLiu/BioLoGI/releases/download/v0.1/biologi-0.1-py3-none-any.whl
+pip install https://github.com/RandolphLiu/BioLoGI/releases/download/0.1/biologi-0.1-py3-none-any.whl
 ```
 
 One of the dependencies, `theano` may require python development package depending on your platform.
