@@ -15,9 +15,8 @@ from sys import stdout
 from enum import Enum
 from scipy.optimize import minimize, differential_evolution
 from functools import reduce
-from biologiclib import ioUtils, modelBase
-from biologiclib.modelBase import ModelType, ModelSpec, ModelSet
-#from biologiclib.modelBase import jacBase
+from biologi import ioUtils, modelBase
+from biologi.modelBase import ModelType, ModelSpec, ModelSet
 from sympy import symbols, lambdify, diff, pretty
 import multiprocessing as mp
 import pymc3 as pm

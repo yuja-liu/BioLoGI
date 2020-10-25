@@ -12,8 +12,8 @@ import dnaplotlib as dpl
 from matplotlib import pyplot as plt
 from matplotlib import cm
 import numpy as np
-from biologiclib.modelBase import ModelType, ModelSpec, genModel
-from biologiclib.inference import Solution
+from biologi.modelBase import ModelType, ModelSpec, genModel
+from biologi.inference import Solution
 import matplotlib
 matplotlib.use('TkAgg')    # dnaplotlib changes the backend to 'Agg'
 

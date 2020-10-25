@@ -11,9 +11,9 @@ main.py is the entrance script. It handles the command line parameters, and retu
 '''
 
 import sys, getopt
-from biologiclib import ioUtils, inference, modelBase, plotUtils
-from biologiclib.modelBase import ModelSet
-from biologiclib.inference import ModelSolver, ModelCriterion
+from biologi import ioUtils, inference, modelBase, plotUtils
+from biologi.modelBase import ModelSet
+from biologi.inference import ModelSolver, ModelCriterion
 import time
 import pymc3 as pm
 
@@ -110,8 +110,15 @@ def main():
         modelFunc = modelBase.genModel(bestModel.modelType, bestModel.modelSpecs)[0][0]
         if modelSolver == ModelSolver.MCMC:    # plot MCMC trace
             pm.traceplot(bestModel.trace)
-        plotUtils.plotModel2D(inSplit, outSplit, stdSplit, thetaDict, modelFunc,
-                inducerTags[0], reporterTag, inducerUnits, reporterUnits, figurePath)
+        plotUtils.plotModel2D(
+                inSplit, outSplit, stdSplit, 
+                thetaDict, modelFunc,
+                inputTag = inducerTags[0], 
+                outputTag = reporterTag, 
+                inputUnits = inducerUnits, 
+                outputUnits = reporterUnits, 
+                logScale = True,
+                save_fig = figurePath)
         print('========================================')
         print('Successfully plotted model fitting')
 

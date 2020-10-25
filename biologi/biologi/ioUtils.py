@@ -10,10 +10,10 @@ Input & output utilities
 
 import json
 import csv
-from biologiclib.modelBase import ModelType
+from biologi.modelBase import ModelType
 from sympy import symbols
 # customed version of simplesbml, to add units
-from biologiclib import simplesbml
+from biologi import simplesbml
 
 # Read input configurations, e.g. units and tags
 def readConfig(filePath):
